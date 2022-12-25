@@ -1,0 +1,20 @@
+=empty spring project
+using https://www.youtube.com/watch?v=Zo9xQzibp4Y
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch main
+#
+# Initial commit
+#
+# Changes to be committed:
+#	new file:   .gitignore
+#	new file:   .mvn/wrapper/maven-wrapper.jar
+#	new file:   .mvn/wrapper/maven-wrapper.properties
+#	new file:   mvnw
+#	new file:   mvnw.cmd
+#	new file:   pom.xml
+#	new file:   src/main/java/openu/workshop/webservice/WebserviceApplication.java
+#	new file:   src/main/resources/application.properties
+#	new file:   src/test/java/openu/workshop/webservice/WebserviceApplicationTests.java
+#
