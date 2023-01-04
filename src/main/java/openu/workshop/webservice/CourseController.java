@@ -9,6 +9,7 @@ import java.sql.Array;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import openu.workshop.webservice.model.Course;
 import openu.workshop.webservice.model.Student;
 import openu.workshop.webservice.model.Task;
@@ -32,8 +33,8 @@ public class CourseController {
 
 
   @GetMapping("/courses")
-  public List<Course> GetCourses(@RequestHeader("Authorization") String authorization) {
-    authManager.ValidateAuth(authorization);
+  public List<Course> GetCourses( @RequestHeader Map<String, String> headers) {
+    authManager.ValidateAuth(headers);
     return Arrays.asList(
         new Course(1, "c#"),
         new Course(2, "politics")
@@ -41,14 +42,14 @@ public class CourseController {
   }
 
   @GetMapping("/courses/{id}")
-  public Course GetCourse(@PathVariable int id, @RequestHeader("Authorization") String authorization) {
-    authManager.ValidateAuth(authorization);
+  public Course GetCourse(@PathVariable int id,  @RequestHeader Map<String, String> headers) {
+    authManager.ValidateAuth(headers);
     return new Course(id, "name of "+id);
   }
 
   @GetMapping("/courses/{id}/tasks")
-  public List<Task> GetCourseTasks(@PathVariable int id, @RequestHeader("Authorization") String authorization) {
-    authManager.ValidateAuth(authorization);
+  public List<Task> GetCourseTasks(@PathVariable int id,  @RequestHeader Map<String, String> headers) {
+    authManager.ValidateAuth(headers);
     return Arrays.asList(
         new Task(1, new Date()),
         new Task(2, new Date())
@@ -56,17 +57,17 @@ public class CourseController {
   }
   @GetMapping("/courses/{id}/tasks/{taskId}/file")
   public  ResponseEntity<Resource>  GetCourseTaskFile(@PathVariable int id,@PathVariable int taskId,
-      @RequestHeader("Authorization") String authorization) throws IOException {
-    authManager.ValidateAuth(authorization);
+       @RequestHeader Map<String, String> headers) throws IOException {
+    authManager.ValidateAuth(headers);
 
     File file = new File("/usr/local/google/home/matanwiesner/personal/webservice/call_example.sh");
 
     Path path = Paths.get(file.getAbsolutePath());
     ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
-    HttpHeaders headers = new HttpHeaders();
-    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=myDoc.docx");
+    HttpHeaders responseHeaders = new HttpHeaders();
+    responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=myDoc.docx");
     return ResponseEntity.ok()
-        .headers(headers)
+        .headers(responseHeaders)
         .contentLength(file.length())
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .body(resource);

@@ -1,5 +1,6 @@
 package openu.workshop.webservice;
 
+import java.util.Map;
 import openu.workshop.webservice.model.Student;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +17,8 @@ public class StudentsController {
 
   @GetMapping("/students")
   public Student GetStudent(@RequestParam int id,
-      @RequestHeader("Authorization") String authorization) {
-    authManager.ValidateAuth(authorization);
+       @RequestHeader Map<String, String> headers) {
+    authManager.ValidateAuth(headers);
     return new Student(id, "matan");
   }
 
