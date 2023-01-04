@@ -15,7 +15,12 @@ public class AuthManager {
   // for some reason, it converted to lower case
   final String AUTHORIZATION_HEADER ="authorization";
 
+  final Boolean DISABLE_AUTH = Boolean.FALSE;
+
   public void ValidateAuth(Map<String, String> headers){
+    if (DISABLE_AUTH){
+      return;
+    }
     if (!headers.containsKey(AUTHORIZATION_HEADER)){
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
