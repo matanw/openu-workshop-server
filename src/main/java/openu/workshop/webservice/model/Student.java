@@ -1,4 +1,4 @@
-package openu.workshop.webservice;
+package openu.workshop.webservice.model;
 
 public class Student {
 
