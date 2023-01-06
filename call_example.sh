@@ -1,34 +1,92 @@
 set -x
+set -e
 
 URL=http://localhost:8080
+echo aaa >a_file.txt
 
-curl -w "\n" -u aaa:bbb $URL/students?id=10
-curl -w "\n" -u aaa1:bbb $URL/students?id=9
-curl -w "\n" $URL/students?id=9
-curl -w "\n" -u aaa:bbb $URL/courses
-curl -w "\n" -u aaa:bbb $URL/courses/8
-
-curl -w "\n" -u aaa:bbb $URL/courses/8/tasks
-curl -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/file -v
-
-rm -f files/a_file.txt #hack:remove file from server
-echo aaa > a_file.txt
-curl -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/file -i -X POST -H "Content-Type: multipart/form-data"  \
+#real upload
+rm -f files/a_file.txt #hack:remove file from serverx
+curl  --fail -w "\n" -u aaa:bbb $URL/realUpload -i -X POST -H "Content-Type: multipart/form-data"  \
   -F "file=@a_file.txt"
-rm a_file.txt
 
-curl -w "\n" -u aaa:bbb $URL/courses/8/tasks \
+echo " ******auth example*****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses
+curl  -w "\n" -u aaa1:bbb $URL/courses
+curl  -w "\n" $URL/courses
+
+echo "*****GET courses(s/p)****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses
+echo "*****GET 1 course(s/p)****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/4
+echo "****POST tasks (p) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks -X POST \
+   -H "Content-Type: application/json" \
+   -d '[{"id":1,"deadline":"2023-01-04T19:20:17.226+00:00"},{"id":2,"deadline":"2023-01-04T19:20:17.226+00:00"}]'
+echo "****Get Tasks (s,p)*****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/6/tasks
+echo "*****Get task file (s/ p) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/file
+echo "*****Post task file (p) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/file -i -X POST -H "Content-Type: multipart/form-data"  \
+  -F "file=@a_file.txt"
+echo "*****Put task file (p) *****"
+curl  --fail  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/file -i -X PUT -H "Content-Type: multipart/form-data"  \
+  -F "file=@a_file.txt"
+
+echo "*****Get submissions (p) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions
+echo "*****Get submission (p) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s123
+echo "*****Get submission file (p) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s123/file
+
+echo "*****Get my submission (s) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/mysubmission
+echo "*****Get my submission file(s) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/mysubmission/file
+echo "*****Post my submission file (s) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/mysubmission/file -i -X POST -H "Content-Type: multipart/form-data"  \
+  -F "file=@a_file.txt"
+echo "*****Put my submission file (s) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/mysubmission/file -i -X PUT -H "Content-Type: multipart/form-data"  \
+  -F "file=@a_file.txt"
+
+
+echo "*****Get my submission feedback file (s) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/mysubmission/feedbackFile
+echo "*****Get feedback file (p) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s123/feedbackFile
+echo "*****Post submission feedback file (p) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s123/feedbackFile -i -X POST -H "Content-Type: multipart/form-data"  \
+  -F "file=@a_file.txt"
+echo "*****Put submission feedback file (p) *****"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s123/feedbackFile -i -X PUT -H "Content-Type: multipart/form-data"  \
+  -F "file=@a_file.txt"
+
+echo "let finish here ' since post grade still broken"
+exit 0
+echo "***Post grade (p)"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/12/submissions/s123/grade \
+   -H "Content-Type: application/json" \
+   -d '{"grade":96}' -X POST -v
+
+
+
+URL=http://localhost:8080
+curl  --fail -w "\n" -u aaa:bbb $URL/g2 \
+   -H "Content-Type: application/json" \
+   -d '{"id":1,"deadlijne":"2023-01-04T19:20:17.226+00:00"}'
+curl  --fail -w "\n" -u aaa:bbb $URL/g2 \
+   -H "Content-Type: application/json" \
+   -d '{"id":1,"deadlijne":"2023-01-04T19:20:17.226+00:00"}'
+
+
+   -X POST -v
+curl  --fail -w "\n" -u aaa:bbb $URL/g3 \
    -H "Content-Type: application/json" \
    -d '[{"id":1,"deadline":"2023-01-04T19:20:17.226+00:00"},{"id":2,"deadline":"2023-01-04T19:20:17.226+00:00"}]'
 
-
-
-rm -f files/a_file.txt #hack:remove file from server
-echo aaa > a_file.txt
-curl -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/mysubmissionfile -i -X POST -H "Content-Type: multipart/form-data"  \
-  -F "file=@a_file.txt"
-rm a_file.txt
-
-
-
-curl -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions
+echo "***Put grade (p)"
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/12/submissions/s123/grade \
+   -H "Content-Type: application/json" \
+   -d '{"grade":96}' -x PUT
