@@ -62,31 +62,11 @@ curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s123/feedback
 echo "*****Put submission feedback file (p) *****"
 curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s123/feedbackFile -i -X PUT -H "Content-Type: multipart/form-data"  \
   -F "file=@a_file.txt"
-
-echo "let finish here ' since post grade still broken"
-exit 0
 echo "***Post grade (p)"
 curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/12/submissions/s123/grade \
    -H "Content-Type: application/json" \
-   -d '{"grade":96}' -X POST -v
-
-
-
-URL=http://localhost:8080
-curl  --fail -w "\n" -u aaa:bbb $URL/g2 \
-   -H "Content-Type: application/json" \
-   -d '{"id":1,"deadlijne":"2023-01-04T19:20:17.226+00:00"}'
-curl  --fail -w "\n" -u aaa:bbb $URL/g2 \
-   -H "Content-Type: application/json" \
-   -d '{"id":1,"deadlijne":"2023-01-04T19:20:17.226+00:00"}'
-
-
-   -X POST -v
-curl  --fail -w "\n" -u aaa:bbb $URL/g3 \
-   -H "Content-Type: application/json" \
-   -d '[{"id":1,"deadline":"2023-01-04T19:20:17.226+00:00"},{"id":2,"deadline":"2023-01-04T19:20:17.226+00:00"}]'
-
+   -d '96' -X POST -v
 echo "***Put grade (p)"
 curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/12/submissions/s123/grade \
    -H "Content-Type: application/json" \
-   -d '{"grade":96}' -x PUT
+   -d '96' -X PUT -v

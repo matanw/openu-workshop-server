@@ -201,7 +201,7 @@ public class CourseController {
   public ResponseEntity<Resource> CreateGrade(@PathVariable int id,
       @PathVariable int taskId,
       @PathVariable String studentId,
-      @RequestBody GradeOnly grade,
+      @RequestBody int grade,
       @RequestHeader Map<String, String> headers) throws IOException {
     authManager.ValidateAuth(headers);
     return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -211,30 +211,7 @@ public class CourseController {
   public ResponseEntity<Resource> UpdateGrade(@PathVariable int id,
       @PathVariable int taskId,
       @PathVariable String studentId,
-      @RequestBody GradeOnly grade,
-      @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
-    return ResponseEntity.status(HttpStatus.CREATED).build();
-  }
-
-
-  @PostMapping("/g1")
-  public ResponseEntity<Resource> G1(
-      @RequestBody GradeOnly grade,
-      @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
-    return ResponseEntity.status(HttpStatus.CREATED).build();
-  }
-  @RequestMapping(value = "/g2", method= RequestMethod.POST, consumes = "application/json")
-  public ResponseEntity<Resource> G2(
-      @RequestBody Task2 grade,
-      @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
-    return ResponseEntity.status(HttpStatus.CREATED).build();
-  }
-  @PostMapping("/g3")
-  public ResponseEntity<Resource> G3(
-      @RequestBody List<Task> grade,
+      @RequestBody int grade,
       @RequestHeader Map<String, String> headers) throws IOException {
     authManager.ValidateAuth(headers);
     return ResponseEntity.status(HttpStatus.CREATED).build();
