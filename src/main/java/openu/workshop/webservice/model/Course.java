@@ -1,9 +1,19 @@
 package openu.workshop.webservice.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class Course {
 
+
+  @Id
   private int id;
   private String name;
+
+  public Course(){
+
+  }
 
 
   public Course(int id, String name) {
