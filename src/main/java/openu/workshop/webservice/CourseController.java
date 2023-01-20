@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.persistence.TypedQuery;
+import openu.workshop.webservice.db.CourseRepository;
 import openu.workshop.webservice.db.JPAWrapper;
 import openu.workshop.webservice.model.Course;
 import openu.workshop.webservice.model.Submission;
@@ -38,16 +39,14 @@ public class CourseController {
   @Autowired
   private AuthManager authManager;
 
+  @Autowired
+  private CourseRepository courseRepository;
+
 
   @GetMapping("/courses")
   public List<Course> GetCourses(@RequestHeader Map<String, String> headers) throws Exception {
     authManager.ValidateAuth(headers);
-
-    try(JPAWrapper jpaWrapper=new JPAWrapper()){
-      TypedQuery<Course> q = jpaWrapper.getEntityManager().
-          createQuery("select c from Course c", Course.class);
-      return q.getResultList();
-    }
+    return courseRepository.findAll();
   }
 
   @GetMapping("/courses/{id}")
