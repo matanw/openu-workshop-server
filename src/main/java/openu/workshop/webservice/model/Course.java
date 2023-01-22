@@ -2,6 +2,7 @@ package openu.workshop.webservice.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class Course {
@@ -11,19 +12,22 @@ public class Course {
   private int id;
   private String name;
 
+  @ManyToOne
+  private Professor professor;
+
+  private boolean tasksSet;
+
   public Course(){
 
   }
 
 
-  public Course(int id, String name) {
+  public Course(int id, String name,Professor professor) {
     this.id = id;
     this.name = name;
+    this.professor=professor;
+    this.tasksSet=false;
   }
-
-  //todo:professor
-  //todo:setted _requirment
-
 
   public int getId() {
     return id;
@@ -40,4 +44,21 @@ public class Course {
   public void setName(String name) {
     this.name = name;
   }
+
+  public Professor getProfessor() {
+    return professor;
+  }
+
+  public void setProfessor(Professor professor) {
+    this.professor = professor;
+  }
+
+  public boolean isTasksSet() {
+    return tasksSet;
+  }
+
+  public void setTasksSet(boolean tasksSet) {
+    this.tasksSet = tasksSet;
+  }
 }
+

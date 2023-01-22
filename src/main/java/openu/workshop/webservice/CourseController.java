@@ -53,7 +53,7 @@ public class CourseController {
   @GetMapping("/courses/{id}")
   public Course GetCourse(@PathVariable int id, @RequestHeader Map<String, String> headers) {
     authManager.ValidateAuth(headers);
-    return new Course(id, "name of " + id);
+    return new Course(id, "name of " + id,null);
   }
 
   @GetMapping("/courses/{id}/tasks")
@@ -61,8 +61,7 @@ public class CourseController {
       @RequestHeader Map<String, String> headers) {
     authManager.ValidateAuth(headers);
     return Arrays.asList(
-        new Task(1, new Date()),
-        new Task(2, new Date())
+
     );
   }
 

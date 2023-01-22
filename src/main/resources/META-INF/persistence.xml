@@ -6,6 +6,8 @@
   <persistence-unit name="default">
 
     <class>openu.workshop.webservice.model.Course</class>
+    <class>openu.workshop.webservice.model.Professor</class>
+    <class>openu.workshop.webservice.model.Task</class>
 
     <properties>
       <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver"/>

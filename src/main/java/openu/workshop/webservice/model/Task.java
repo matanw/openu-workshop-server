@@ -1,15 +1,25 @@
 package openu.workshop.webservice.model;
 
 import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
+@Entity
 public class Task {
 
+  @Id
   private int id;
-  private Date deadline; //todo:fields
+  private Date submissionDeadline;
+  private Date checkDeadLine;
+  private double weightInGrade;
 
-  public Task(int id, Date deadline) {
+  public Task(){}
+
+  public Task(int id, Date submissionDeadline, Date checkDeadLine, double weightInGrade) {
     this.id = id;
-    this.deadline = deadline;
+    this.submissionDeadline = submissionDeadline;
+    this.checkDeadLine = checkDeadLine;
+    this.weightInGrade = weightInGrade;
   }
 
   public int getId() {
@@ -20,11 +30,27 @@ public class Task {
     this.id = id;
   }
 
-  public Date getDeadline() {
-    return deadline;
+  public Date getSubmissionDeadline() {
+    return submissionDeadline;
   }
 
-  public void setDeadline(Date deadline) {
-    this.deadline = deadline;
+  public void setSubmissionDeadline(Date submissionDeadline) {
+    this.submissionDeadline = submissionDeadline;
+  }
+
+  public Date getCheckDeadLine() {
+    return checkDeadLine;
+  }
+
+  public void setCheckDeadLine(Date checkDeadLine) {
+    this.checkDeadLine = checkDeadLine;
+  }
+
+  public double getWeightInGrade() {
+    return weightInGrade;
+  }
+
+  public void setWeightInGrade(double weightInGrade) {
+    this.weightInGrade = weightInGrade;
   }
 }
