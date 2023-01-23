@@ -1,32 +1,38 @@
 package openu.workshop.webservice.model;
 
 import java.util.Date;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class Task {
 
-  @Id
-  private int id;
+
+  @EmbeddedId
+  private TaskID id;
   private Date submissionDeadline;
   private Date checkDeadLine;
   private double weightInGrade;
 
   public Task(){}
 
-  public Task(int id, Date submissionDeadline, Date checkDeadLine, double weightInGrade) {
+  @ManyToOne
+  private Course course;
+
+  public Task(TaskID id, Date submissionDeadline, Date checkDeadLine, double weightInGrade) {
     this.id = id;
     this.submissionDeadline = submissionDeadline;
     this.checkDeadLine = checkDeadLine;
     this.weightInGrade = weightInGrade;
   }
 
-  public int getId() {
+  public TaskID getId() {
     return id;
   }
 
-  public void setId(int id) {
+  public void setId(TaskID id) {
     this.id = id;
   }
 
@@ -53,4 +59,6 @@ public class Task {
   public void setWeightInGrade(double weightInGrade) {
     this.weightInGrade = weightInGrade;
   }
+
+
 }

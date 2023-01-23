@@ -1,8 +1,10 @@
 package openu.workshop.webservice.model;
 
+import java.util.Collection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 @Entity
 public class Course {
@@ -16,6 +18,9 @@ public class Course {
   private Professor professor;
 
   private boolean tasksSet;
+
+  @OneToMany
+  private Collection<Task> tasks;
 
   public Course(){
 
@@ -59,6 +64,14 @@ public class Course {
 
   public void setTasksSet(boolean tasksSet) {
     this.tasksSet = tasksSet;
+  }
+
+  public Collection<Task> getTasks() {
+    return tasks;
+  }
+
+  public void setTasks(Collection<Task> tasks) {
+    this.tasks = tasks;
   }
 }
 
