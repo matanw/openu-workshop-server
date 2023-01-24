@@ -10,9 +10,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.persistence.TypedQuery;
+import openu.workshop.webservice.datatransferobjects.CourseDTO;
+import openu.workshop.webservice.datatransferobjects.TaskDTO;
 import openu.workshop.webservice.db.JPAWrapper;
 import openu.workshop.webservice.model.Course;
+import openu.workshop.webservice.model.Professor;
 import openu.workshop.webservice.model.Submission;
 import openu.workshop.webservice.model.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,36 +44,74 @@ public class CourseController {
 
 
   @GetMapping("/courses")
-  public List<Course> GetCourses(@RequestHeader Map<String, String> headers) throws Exception {
-    authManager.ValidateAuth(headers);
-
+  public List<CourseDTO> GetCourses(@RequestHeader Map<String, String> headers) throws Exception {
+   //tbd: think on this design
+    Professor professor = authManager.getAuthenticatedProfessor(headers);
+    List<Course> courses;
     try(JPAWrapper jpaWrapper=new JPAWrapper()){
       TypedQuery<Course> q = jpaWrapper.getEntityManager().
-          createQuery("select c from Course c", Course.class);
-      return q.getResultList();
+          createQuery("select c from Course c where c.professor.id = :professorId", Course.class).setParameter("professorId",professor.getId());
+      courses = q.getResultList();
     }
+    return courses.stream().map(c-> CourseDTO.FromModel(c,professor)).toList();
   }
 
   @GetMapping("/courses/{id}")
-  public Course GetCourse(@PathVariable int id, @RequestHeader Map<String, String> headers) {
-    authManager.ValidateAuth(headers);
-    return new Course(id, "name of " + id,null);
+  public CourseDTO GetCourse(@PathVariable int id, @RequestHeader Map<String, String> headers) throws Exception{
+    Professor professor = authManager.getAuthenticatedProfessor(headers);
+    Course course;
+    try(JPAWrapper jpaWrapper=new JPAWrapper()){
+      course = jpaWrapper.getEntityManager().find(Course.class, id);
+    }
+    if (!course.getProfessor().getId().equals(professor.getId())){
+      //todo: 403
+      throw new Exception();
+    }
+    return CourseDTO.FromModel(course,professor);
   }
 
   @GetMapping("/courses/{id}/tasks")
-  public List<Task> GetCourseTasks(@PathVariable int id,
-      @RequestHeader Map<String, String> headers) {
-    authManager.ValidateAuth(headers);
-    return Arrays.asList(
+  public List<TaskDTO> GetCourseTasks(@PathVariable int id,
+      @RequestHeader Map<String, String> headers) throws Exception {
+    Professor professor = authManager.getAuthenticatedProfessor(headers);
+    Course course;
+    List<Task> tasks;
+    try(JPAWrapper jpaWrapper=new JPAWrapper()){
+      course = jpaWrapper.getEntityManager().find(Course.class, id);
+      if (!course.getProfessor().getId().equals(professor.getId())){
+        //todo: 403
+        throw new Exception();
+      }
+      TypedQuery<Task> q = jpaWrapper.getEntityManager().
+          createQuery("select t from Task t where t.id.courseId = :courseId", Task.class)
+          .setParameter("courseId",id);
+      tasks = q.getResultList();
+    }
 
-    );
+    return tasks.stream().map(TaskDTO::FromModel).toList();
   }
 
   @PostMapping("/courses/{id}/tasks")
   public ResponseEntity<Resource> CreateCourseTasks(@PathVariable int id,
-      @RequestBody List<Task> tasks,
-      @RequestHeader Map<String, String> headers) {
-    authManager.ValidateAuth(headers);
+      @RequestBody List<TaskDTO> taskDTOs,
+      @RequestHeader Map<String, String> headers) throws  Exception{
+    Professor professor = authManager.getAuthenticatedProfessor(headers);
+    Course course;
+    try(JPAWrapper jpaWrapper=new JPAWrapper()){
+      course = jpaWrapper.getEntityManager().find(Course.class, id);
+      if (!course.getProfessor().getId().equals(professor.getId())){
+        //todo: 403
+        throw new Exception();
+      }
+      //todo>: validate no entity wet
+      jpaWrapper.getEntityManager().getTransaction().begin();
+      for (TaskDTO taskDTO: taskDTOs){
+        Task task = taskDTO.ToModel(id);
+        jpaWrapper.getEntityManager().persist(task);
+      }
+      jpaWrapper.getEntityManager().getTransaction().commit();
+    }
+
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
