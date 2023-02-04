@@ -1,5 +1,7 @@
 package openu.workshop.webservice;
 
+import openu.workshop.webservice.auth.AuthManager;
+import openu.workshop.webservice.auth.LoginInformation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,11 +12,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.persistence.TypedQuery;
 import openu.workshop.webservice.datatransferobjects.CourseDTO;
 import openu.workshop.webservice.datatransferobjects.TaskDTO;
-import openu.workshop.webservice.db.JPAWrapper;
 import openu.workshop.webservice.model.Course;
 import openu.workshop.webservice.model.Professor;
 import openu.workshop.webservice.model.Submission;
@@ -35,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class CourseController {
@@ -42,27 +42,32 @@ public class CourseController {
   @Autowired
   private AuthManager authManager;
 
+  @Autowired
+  private ControllersService controllersService;
+
 
   @GetMapping("/courses")
   public List<CourseDTO> GetCourses(@RequestHeader Map<String, String> headers) throws Exception {
    //tbd: think on this design
-    Professor professor = authManager.getAuthenticatedProfessor(headers);
-    List<Course> courses;
-    try(JPAWrapper jpaWrapper=new JPAWrapper()){
-      TypedQuery<Course> q = jpaWrapper.getEntityManager().
-          createQuery("select c from Course c where c.professor.id = :professorId", Course.class).setParameter("professorId",professor.getId());
-      courses = q.getResultList();
+    LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
+    //todo: if it is student
+    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
+    if (professor==null){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
+    List<Course> courses = controllersService.listCourses(professor);
     return courses.stream().map(c-> CourseDTO.FromModel(c,professor)).toList();
   }
 
   @GetMapping("/courses/{id}")
   public CourseDTO GetCourse(@PathVariable int id, @RequestHeader Map<String, String> headers) throws Exception{
-    Professor professor = authManager.getAuthenticatedProfessor(headers);
-    Course course;
-    try(JPAWrapper jpaWrapper=new JPAWrapper()){
-      course = jpaWrapper.getEntityManager().find(Course.class, id);
+    LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
+    //todo: if it is student
+    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
+    if (professor==null){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
+    Course course=controllersService.getCourse(id);
     if (!course.getProfessor().getId().equals(professor.getId())){
       //todo: 403
       throw new Exception();
@@ -73,21 +78,18 @@ public class CourseController {
   @GetMapping("/courses/{id}/tasks")
   public List<TaskDTO> GetCourseTasks(@PathVariable int id,
       @RequestHeader Map<String, String> headers) throws Exception {
-    Professor professor = authManager.getAuthenticatedProfessor(headers);
-    Course course;
-    List<Task> tasks;
-    try(JPAWrapper jpaWrapper=new JPAWrapper()){
-      course = jpaWrapper.getEntityManager().find(Course.class, id);
-      if (!course.getProfessor().getId().equals(professor.getId())){
-        //todo: 403
-        throw new Exception();
-      }
-      TypedQuery<Task> q = jpaWrapper.getEntityManager().
-          createQuery("select t from Task t where t.id.courseId = :courseId", Task.class)
-          .setParameter("courseId",id);
-      tasks = q.getResultList();
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    //todo: if it is student
+    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
+    if (professor == null){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
-
+    Course course = controllersService.getCourse(id);
+    if (!course.getProfessor().getId().equals(professor.getId())){
+      //todo: 403
+      throw new Exception();
+    }
+    List<Task> tasks = controllersService.getTasksByCourse(id);
     return tasks.stream().map(TaskDTO::FromModel).toList();
   }
 
@@ -95,30 +97,25 @@ public class CourseController {
   public ResponseEntity<Resource> CreateCourseTasks(@PathVariable int id,
       @RequestBody List<TaskDTO> taskDTOs,
       @RequestHeader Map<String, String> headers) throws  Exception{
-    Professor professor = authManager.getAuthenticatedProfessor(headers);
-    Course course;
-    try(JPAWrapper jpaWrapper=new JPAWrapper()){
-      course = jpaWrapper.getEntityManager().find(Course.class, id);
-      if (!course.getProfessor().getId().equals(professor.getId())){
-        //todo: 403
-        throw new Exception();
-      }
-      //todo>: validate no entity wet
-      jpaWrapper.getEntityManager().getTransaction().begin();
-      for (TaskDTO taskDTO: taskDTOs){
-        Task task = taskDTO.ToModel(id);
-        jpaWrapper.getEntityManager().persist(task);
-      }
-      jpaWrapper.getEntityManager().getTransaction().commit();
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    //todo: if it is student
+    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
+    if (professor == null){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
-
+    Course course = controllersService.getCourse(id);
+    if (!course.getProfessor().getId().equals(professor.getId())){
+      //todo: 403
+      throw new Exception();
+    }
+    List<Task> tasks = taskDTOs.stream().map(t-> t.ToModel(id)).toList();
+    controllersService.saveTasks(tasks);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
   @GetMapping("/courses/{id}/tasks/{taskId}/file")
   public ResponseEntity<Resource> GetCourseTaskFile(@PathVariable int id, @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
     return fileResponse();
   }
 
@@ -141,7 +138,7 @@ public class CourseController {
   public List<Submission> GetCourseTasksSubmissions(@PathVariable int id,
       @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) {
-    authManager.ValidateAuth(headers);
+   
     return Arrays.asList(
         new Submission( new Date(),null),
         new Submission( new Date(), 96)
@@ -154,7 +151,7 @@ public class CourseController {
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestHeader Map<String, String> headers) {
-    authManager.ValidateAuth(headers);
+   
     return new Submission( new Date(),null);
   }
 
@@ -163,7 +160,7 @@ public class CourseController {
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
+   
     return fileResponse();
   }
 
@@ -171,7 +168,7 @@ public class CourseController {
   public Submission GetCourseTasksMySubmission(@PathVariable int id,
       @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) {
-    authManager.ValidateAuth(headers);
+   
     return new Submission( new Date(),null);
   }
 
@@ -179,7 +176,7 @@ public class CourseController {
   public ResponseEntity<Resource> GetCourseTasksMySubmissionFile(@PathVariable int id,
       @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
+   
     return fileResponse();
   }
 
@@ -187,7 +184,7 @@ public class CourseController {
   public ResponseEntity<Resource> CreateCourseTasksMySubmissionFile(@PathVariable int id,
       @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
+   
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
@@ -196,7 +193,7 @@ public class CourseController {
   public ResponseEntity<Resource> ReplaceCourseTasksMySubmissionFile(@PathVariable int id,
       @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
+   
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
@@ -205,7 +202,7 @@ public class CourseController {
   public ResponseEntity<Resource> GetCourseTasksMySubmissionFeedbackFile(@PathVariable int id,
       @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
+   
     return fileResponse();
   }
 
@@ -214,7 +211,7 @@ public class CourseController {
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
+   
     return fileResponse();
   }
 
@@ -223,7 +220,7 @@ public class CourseController {
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
+   
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
@@ -233,7 +230,7 @@ public class CourseController {
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
+   
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
@@ -244,7 +241,7 @@ public class CourseController {
       @PathVariable String studentId,
       @RequestBody int grade,
       @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
+   
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
@@ -254,7 +251,7 @@ public class CourseController {
       @PathVariable String studentId,
       @RequestBody int grade,
       @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
+   
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
@@ -262,7 +259,7 @@ public class CourseController {
   @PostMapping("/realUpload")
   public ResponseEntity<Resource> RealUpload( @RequestParam("file") MultipartFile file,
       @RequestHeader Map<String, String> headers) throws IOException {
-    authManager.ValidateAuth(headers);
+   
     Files.copy(file.getInputStream(), Paths.get("files").resolve(
         Objects.requireNonNull(file.getOriginalFilename())));
     return ResponseEntity.status(HttpStatus.CREATED).build();
