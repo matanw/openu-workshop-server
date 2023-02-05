@@ -1,6 +1,7 @@
 package openu.workshop.webservice.model;
 
 import java.util.Date;
+import javax.persistence.Embedded;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -9,12 +10,14 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Task {
 
-
   @EmbeddedId
   private TaskID id;
   private Date submissionDeadline;
   private Date checkDeadLine;
   private double weightInGrade;
+
+  @Embedded
+  private FileObject file;
 
   public Task(){}
 
@@ -60,5 +63,11 @@ public class Task {
     this.weightInGrade = weightInGrade;
   }
 
+  public FileObject getFile() {
+    return file;
+  }
 
+  public void setFile(FileObject file) {
+    this.file = file;
+  }
 }
