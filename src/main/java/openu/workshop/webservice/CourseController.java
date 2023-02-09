@@ -15,6 +15,7 @@ import java.util.Objects;
 import openu.workshop.webservice.datatransferobjects.CourseDTO;
 import openu.workshop.webservice.datatransferobjects.TaskDTO;
 import openu.workshop.webservice.model.Course;
+import openu.workshop.webservice.model.FileObject;
 import openu.workshop.webservice.model.Professor;
 import openu.workshop.webservice.model.Submission;
 import openu.workshop.webservice.model.Task;
@@ -25,6 +26,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -119,10 +121,14 @@ public class CourseController {
     return fileResponse();
   }
 
-  @PostMapping("/courses/{id}/tasks/{taskId}/file")
-  public ResponseEntity<Resource> CreateCourseTaskFile(@PathVariable int id, @PathVariable int taskId,
+  @PostMapping("/courses/{courseId}/tasks/{taskId}/file")
+  public ResponseEntity<Resource> CreateCourseTaskFile(@PathVariable int courseId, @PathVariable int taskId,
       @RequestParam("file") MultipartFile file,
       @RequestHeader Map<String, String> headers) throws IOException {
+    //todo: auth, validation
+    String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+    FileObject fileObject = new FileObject(fileName, file.getBytes());
+    controllersService.saveFile(courseId, taskId, fileObject);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 

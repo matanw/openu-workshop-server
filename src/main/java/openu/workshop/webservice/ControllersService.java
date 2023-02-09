@@ -5,15 +5,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import openu.workshop.webservice.model.FileObject;
 import openu.workshop.webservice.db.FuncWithEntityManager;
 import openu.workshop.webservice.db.FuncWithEntityManagerAndTransaction;
 import openu.workshop.webservice.model.Course;
 import openu.workshop.webservice.model.Professor;
 import openu.workshop.webservice.model.Task;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
-import javax.persistence.TypedQuery;
 
 @Component
 public class ControllersService {
@@ -75,5 +73,21 @@ public class ControllersService {
       }
       return 0;
     });
+  }
+
+  public void saveFile(int courseId, int taskId, FileObject file) {
+    executeInTransaction((em,t)->
+        {
+          List<Task> tasks=em.
+              createQuery("select t from Task t where t.id.courseId = :courseId and t.id.taskId = :taskId", Task.class)
+              .setParameter("courseId",courseId)
+              .setParameter("taskId",taskId).getResultList();
+          //todo: handle non 1
+          Task task = tasks.get(0);
+          task.setFile(file);
+          em.persist(task);
+          return 0;
+        }
+    );
   }
 }

@@ -9,4 +9,11 @@ public class FileObject {
 
   @Lob
   public byte[] Data;
+
+  public FileObject(){}
+
+  public FileObject(String name, byte[] data) {
+    Name = name;
+    Data = data;
+  }
 }
