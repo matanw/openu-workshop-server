@@ -16,3 +16,4 @@ echo "Do your homework" > $TASK_FILE
 curl  --fail -w "\n" -u p123:123pass $URL/courses/1/tasks/1/file -i -X POST -H "Content-Type: multipart/form-data"  \
   -F "file=@$TASK_FILE"
 curl  --fail -w "\n" -u p123:123pass $URL/courses/1/tasks/1/file
+curl  --fail -w "\n" -u s789:789pass $URL/courses

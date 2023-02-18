@@ -10,6 +10,7 @@ import openu.workshop.webservice.db.FuncWithEntityManager;
 import openu.workshop.webservice.db.FuncWithEntityManagerAndTransaction;
 import openu.workshop.webservice.model.Course;
 import openu.workshop.webservice.model.Professor;
+import openu.workshop.webservice.model.Student;
 import openu.workshop.webservice.model.Task;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,18 @@ public class ControllersService {
         return null;
       }
       return professor;
+    });
+  }
+  public Student getStudent(String id, String password){
+    return executeInDB(em->{
+      Student student=em.find(Student.class, id);
+      if (student ==null){
+        return null;
+      }
+      if (!student.getPassword().equals(password)){
+        return null;
+      }
+      return student;
     });
   }
 
@@ -54,6 +67,12 @@ public class ControllersService {
     return executeInDB(em->
         em.createQuery("select c from Course c where c.professor.id = :professorId", Course.class)
             .setParameter("professorId",professor.getId()).getResultList());
+  }
+
+  public List<Course> listCourses(Student student) {
+    return executeInDB(em->
+        em.createQuery("select r.course from Registration r where r.student.id = :studentId", Course.class)
+            .setParameter("studentId",student.getId()).getResultList());
   }
 
   public Course getCourse(int id) {

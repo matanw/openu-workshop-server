@@ -12,11 +12,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import openu.workshop.webservice.auth.LoginType;
 import openu.workshop.webservice.datatransferobjects.CourseDTO;
 import openu.workshop.webservice.datatransferobjects.TaskDTO;
 import openu.workshop.webservice.model.Course;
 import openu.workshop.webservice.model.FileObject;
 import openu.workshop.webservice.model.Professor;
+import openu.workshop.webservice.model.Student;
 import openu.workshop.webservice.model.Submission;
 import openu.workshop.webservice.model.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,15 +52,24 @@ public class CourseController {
 
   @GetMapping("/courses")
   public List<CourseDTO> GetCourses(@RequestHeader Map<String, String> headers) throws Exception {
-   //tbd: think on this design
-    LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
-    //todo: if it is student
-    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
-    if (professor==null){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-    List<Course> courses = controllersService.listCourses(professor);
-    return courses.stream().map(c-> CourseDTO.FromModel(c,professor)).toList();
+   LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
+   if (loginInformation.loginType== LoginType.PROFESSOR) {
+      Professor professor = controllersService.getProfessor(loginInformation.username,
+          loginInformation.password);
+      if (professor == null) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      }
+      List<Course> courses = controllersService.listCourses(professor);
+      return courses.stream().map(CourseDTO::FromModel).toList();
+    }else{
+     Student student = controllersService.getStudent(loginInformation.username,
+         loginInformation.password);
+     if (student == null) {
+       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+     }
+     List<Course> courses = controllersService.listCourses(student);
+     return courses.stream().map(CourseDTO::FromModel).toList();
+   }
   }
 
   @GetMapping("/courses/{id}")
@@ -74,7 +85,7 @@ public class CourseController {
       //todo: 403
       throw new Exception();
     }
-    return CourseDTO.FromModel(course,professor);
+    return CourseDTO.FromModel(course);
   }
 
   @GetMapping("/courses/{id}/tasks")

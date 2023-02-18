@@ -46,7 +46,7 @@ public class CourseDTO {
     this.tasksSet = tasksSet;
   }
 
-  public static CourseDTO FromModel(Course course, Professor professor){
+  public static CourseDTO FromModel(Course course){
     CourseDTO courseDTO = new CourseDTO();
     courseDTO.setId(course.getId());
     courseDTO.setProfessorId(course.getProfessor().getId());
