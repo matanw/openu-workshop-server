@@ -115,17 +115,40 @@ public class CourseController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  @GetMapping("/courses/{id}/tasks/{taskId}/file")
-  public ResponseEntity<Resource> GetCourseTaskFile(@PathVariable int id, @PathVariable int taskId,
-      @RequestHeader Map<String, String> headers) throws IOException {
-    return fileResponse();
+  @GetMapping("/courses/{courseId}/tasks/{taskId}/file")
+  public ResponseEntity<Resource> GetCourseTaskFile(@PathVariable int courseId, @PathVariable int taskId,
+      @RequestHeader Map<String, String> headers) throws Exception {
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    //todo: if it is student
+    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
+    if (professor == null){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+    Course course = controllersService.getCourse(courseId);
+    if (!course.getProfessor().getId().equals(professor.getId())){
+      //todo: 403
+      throw new Exception();
+    }
+    FileObject fileObject = controllersService.getFile(courseId, taskId);
+    return fileResponse(fileObject);
   }
 
   @PostMapping("/courses/{courseId}/tasks/{taskId}/file")
   public ResponseEntity<Resource> CreateCourseTaskFile(@PathVariable int courseId, @PathVariable int taskId,
       @RequestParam("file") MultipartFile file,
-      @RequestHeader Map<String, String> headers) throws IOException {
-    //todo: auth, validation
+      @RequestHeader Map<String, String> headers) throws Exception {
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    //todo: if it is student
+    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
+    if (professor == null){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+    Course course = controllersService.getCourse(courseId);
+    if (!course.getProfessor().getId().equals(professor.getId())){
+      //todo: 403
+      throw new Exception();
+    }
+
     String fileName = StringUtils.cleanPath(file.getOriginalFilename());
     FileObject fileObject = new FileObject(fileName, file.getBytes());
     controllersService.saveFile(courseId, taskId, fileObject);
@@ -271,6 +294,7 @@ public class CourseController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
+  //todo delete this signature
   private ResponseEntity<Resource> fileResponse() throws IOException {
 
     File file = new File("files/task1.txt");
@@ -283,6 +307,15 @@ public class CourseController {
         .contentLength(file.length())
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .body(resource);
+  }
+  private ResponseEntity<Resource> fileResponse(FileObject fileObject){
+    HttpHeaders responseHeaders = new HttpHeaders();
+    responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+fileObject.Name);
+    return ResponseEntity.ok()
+        .headers(responseHeaders)
+        .contentLength(fileObject.Data.length)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(new ByteArrayResource(fileObject.Data));
   }
 
 

@@ -90,4 +90,17 @@ public class ControllersService {
         }
     );
   }
+  public FileObject getFile(int courseId, int taskId) {
+    return executeInDB(em->
+        {
+          List<Task> tasks=em.
+              createQuery("select t from Task t where t.id.courseId = :courseId and t.id.taskId = :taskId", Task.class)
+              .setParameter("courseId",courseId)
+              .setParameter("taskId",taskId).getResultList();
+          //todo: handle non 1
+          Task task = tasks.get(0);
+          return task.getFile();
+        }
+    );
+  }
 }

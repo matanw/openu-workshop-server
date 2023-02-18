@@ -1,13 +1,39 @@
 package openu.workshop.webservice;
 
+import javax.persistence.Persistence;
+import openu.workshop.webservice.model.Course;
+import openu.workshop.webservice.model.Professor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class WebserviceApplication {
+	private static void initDB() throws Exception {
 
+		var entityManagerFactory = Persistence.
+				createEntityManagerFactory("default");
+		var entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		entityManager.createQuery("DELETE FROM Course").executeUpdate();
+		entityManager.createQuery("DELETE FROM Professor").executeUpdate();
+		entityManager.createQuery("DELETE FROM Task").executeUpdate();
+
+		Professor p1 = new Professor("123", "123pass");
+		Professor p2 = new Professor("456", "456pass");
+		entityManager.persist(p1);
+		entityManager.persist(p2);
+		entityManager.persist(new Course(1, "java", p1));
+		entityManager.persist(new Course(2, "python", p1));
+		entityManager.persist(new Course(3, "history", p2));
+		entityManager.persist(new Course(4, "theology", p2));
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		entityManagerFactory.close();
+		System.out.println("updated ok!");
+	}
 	//todo: fix "throw Exception" All over code
 	public static void main(String[] args) throws Exception {
-	 SpringApplication.run(WebserviceApplication.class, args);
+		initDB();//todo:delete
+		SpringApplication.run(WebserviceApplication.class, args);
 	}
 }
