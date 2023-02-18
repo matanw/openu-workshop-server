@@ -9,7 +9,6 @@ import javax.persistence.ManyToOne;
 
 @Entity
 public class Task {
-
   @EmbeddedId
   private TaskID id;
   private Date submissionDeadline;

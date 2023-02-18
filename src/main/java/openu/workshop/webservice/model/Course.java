@@ -22,6 +22,9 @@ public class Course {
   @OneToMany
   private Collection<Task> tasks;
 
+  @OneToMany(mappedBy = "course")
+  private  Collection<Registration> registrations;
+
   public Course(){
 
   }
@@ -33,6 +36,7 @@ public class Course {
     this.professor=professor;
     this.tasksSet=false;
   }
+
 
   public int getId() {
     return id;
@@ -72,6 +76,15 @@ public class Course {
 
   public void setTasks(Collection<Task> tasks) {
     this.tasks = tasks;
+  }
+
+  public Collection<Registration> getRegistrations() {
+    return registrations;
+  }
+
+  public void setRegistrations(
+      Collection<Registration> registrations) {
+    this.registrations = registrations;
   }
 }
 

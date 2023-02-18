@@ -1,15 +1,30 @@
 package openu.workshop.webservice.model;
 
 import java.util.Date;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 
+@Entity
 public class Submission {
-//todo: student
+
+  @EmbeddedId
+  private SubmissionID id;
   private Date submitDate;
   private Integer grade;
 
-  public Submission(Date submitDate, Integer grade) {
-    this.submitDate = submitDate;
-    this.grade = grade;
+  @ManyToOne
+  private Task task;
+
+  public Submission(){}
+
+
+  public SubmissionID getId() {
+    return id;
+  }
+
+  public void setId(SubmissionID id) {
+    this.id = id;
   }
 
   public Date getSubmitDate() {
@@ -26,5 +41,13 @@ public class Submission {
 
   public void setGrade(Integer grade) {
     this.grade = grade;
+  }
+
+  public Task getTask() {
+    return task;
+  }
+
+  public void setTask(Task task) {
+    this.task = task;
   }
 }

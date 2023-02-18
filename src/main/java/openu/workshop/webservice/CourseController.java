@@ -169,8 +169,6 @@ public class CourseController {
       @RequestHeader Map<String, String> headers) {
    
     return Arrays.asList(
-        new Submission( new Date(),null),
-        new Submission( new Date(), 96)
     );
   }
 
@@ -181,7 +179,7 @@ public class CourseController {
       @PathVariable String studentId,
       @RequestHeader Map<String, String> headers) {
    
-    return new Submission( new Date(),null);
+    return new Submission();// new Date(),null);
   }
 
   @GetMapping("/courses/{id}/tasks/{taskId}/submissions/{studentId}/file")
@@ -198,7 +196,7 @@ public class CourseController {
       @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) {
    
-    return new Submission( new Date(),null);
+    return new Submission();// new Date(),null);
   }
 
   @GetMapping("/courses/{id}/tasks/{taskId}/mysubmission/file")

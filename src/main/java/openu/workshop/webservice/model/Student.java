@@ -1,28 +1,51 @@
 package openu.workshop.webservice.model;
 
+import java.util.Collection;
+import java.util.Set;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+@Entity
 public class Student {
 
-  private int id;
-  private String name;
+  @Id
+  private String id;
+  private String password; // todo: salt
 
-  public Student(int id, String name) {
+  @OneToMany(mappedBy = "student")
+  private Collection<Registration> registrations;
+
+  public Student(){}
+
+  public Student(String id, String password) {
     this.id = id;
-    this.name = name;
+    this.password = password;
   }
 
-  public int getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(int id) {
+  public void setId(String id) {
     this.id = id;
   }
 
-  public String getName() {
-    return name;
+  public String getPassword() {
+    return password;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public Collection<Registration> getRegistrations() {
+    return registrations;
+  }
+
+  public void setRegistrations(
+      Collection<Registration> registrations) {
+    this.registrations = registrations;
   }
 }
