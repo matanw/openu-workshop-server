@@ -75,35 +75,64 @@ public class CourseController {
   @GetMapping("/courses/{id}")
   public CourseDTO GetCourse(@PathVariable int id, @RequestHeader Map<String, String> headers) throws Exception{
     LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
-    //todo: if it is student
-    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
-    if (professor==null){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    if (loginInformation.loginType==LoginType.PROFESSOR) {
+      Professor professor = controllersService.getProfessor(loginInformation.username,
+          loginInformation.password);
+      if (professor == null) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      }
+      Course course = controllersService.getCourse(id);
+      if (!course.getProfessor().getId().equals(professor.getId())) {
+        //todo: 403
+        throw new Exception();
+      }
+      return CourseDTO.FromModel(course);
+    }else{
+      Student student = controllersService.getStudent(loginInformation.username,
+          loginInformation.password);
+      if (student == null) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      }
+      Course course = controllersService.getCourse(id);
+      if (!controllersService.isStudentRegisteredToCourse(student,course)) {
+        //todo: error
+        throw new Exception();
+      }
+      return CourseDTO.FromModel(course);
     }
-    Course course=controllersService.getCourse(id);
-    if (!course.getProfessor().getId().equals(professor.getId())){
-      //todo: 403
-      throw new Exception();
-    }
-    return CourseDTO.FromModel(course);
   }
 
   @GetMapping("/courses/{id}/tasks")
   public List<TaskDTO> GetCourseTasks(@PathVariable int id,
       @RequestHeader Map<String, String> headers) throws Exception {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
-    //todo: if it is student
-    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
-    if (professor == null){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-    Course course = controllersService.getCourse(id);
-    if (!course.getProfessor().getId().equals(professor.getId())){
-      //todo: 403
-      throw new Exception();
-    }
-    List<Task> tasks = controllersService.getTasksByCourse(id);
-    return tasks.stream().map(TaskDTO::FromModel).toList();
+   if (loginInformation.loginType==LoginType.PROFESSOR) {
+     Professor professor = controllersService.getProfessor(loginInformation.username,
+         loginInformation.password);
+     if (professor == null) {
+       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+     }
+     Course course = controllersService.getCourse(id);
+     if (!course.getProfessor().getId().equals(professor.getId())) {
+       //todo: 403
+       throw new Exception();
+     }
+     List<Task> tasks = controllersService.getTasksByCourse(id);
+     return tasks.stream().map(TaskDTO::FromModel).toList();
+   }else{
+     Student student = controllersService.getStudent(loginInformation.username,
+         loginInformation.password);
+     if (student == null) {
+       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+     }
+     Course course = controllersService.getCourse(id);
+     if (!controllersService.isStudentRegisteredToCourse(student,course)) {
+       //todo: error
+       throw new Exception();
+     }
+     List<Task> tasks = controllersService.getTasksByCourse(id);
+     return tasks.stream().map(TaskDTO::FromModel).toList();
+   }
   }
 
   @PostMapping("/courses/{id}/tasks")
@@ -130,18 +159,33 @@ public class CourseController {
   public ResponseEntity<Resource> GetCourseTaskFile(@PathVariable int courseId, @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) throws Exception {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
-    //todo: if it is student
-    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
-    if (professor == null){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    if ( loginInformation.loginType==LoginType.PROFESSOR) {
+      Professor professor = controllersService.getProfessor(loginInformation.username,
+          loginInformation.password);
+      if (professor == null) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      }
+      Course course = controllersService.getCourse(courseId);
+      if (!course.getProfessor().getId().equals(professor.getId())) {
+        //todo: 403
+        throw new Exception();
+      }
+      FileObject fileObject = controllersService.getFile(courseId, taskId);
+      return fileResponse(fileObject);
+    }else{
+      Student student = controllersService.getStudent(loginInformation.username,
+          loginInformation.password);
+      if (student == null) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      }
+      Course course = controllersService.getCourse(courseId);
+      if (!controllersService.isStudentRegisteredToCourse(student,course)) {
+        //todo: error
+        throw new Exception();
+      }
+      FileObject fileObject = controllersService.getFile(courseId, taskId);
+      return fileResponse(fileObject);
     }
-    Course course = controllersService.getCourse(courseId);
-    if (!course.getProfessor().getId().equals(professor.getId())){
-      //todo: 403
-      throw new Exception();
-    }
-    FileObject fileObject = controllersService.getFile(courseId, taskId);
-    return fileResponse(fileObject);
   }
 
   @PostMapping("/courses/{courseId}/tasks/{taskId}/file")
@@ -159,9 +203,7 @@ public class CourseController {
       //todo: 403
       throw new Exception();
     }
-
-    String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-    FileObject fileObject = new FileObject(fileName, file.getBytes());
+    FileObject fileObject =fileToFileObject(file);
     controllersService.saveFile(courseId, taskId, fileObject);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
@@ -174,7 +216,7 @@ public class CourseController {
   }
 
   /// submission (p)
-  @GetMapping("/courses/{id}/tasks/{taskId}/submissions")
+  @GetMapping("/courses/{courseId}/tasks/{taskId}/submissions")
   public List<Submission> GetCourseTasksSubmissions(@PathVariable int id,
       @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) {
@@ -221,9 +263,33 @@ public class CourseController {
   @PostMapping("/courses/{id}/tasks/{taskId}/mysubmission/file")
   public ResponseEntity<Resource> CreateCourseTasksMySubmissionFile(@PathVariable int id,
       @PathVariable int taskId,
-      @RequestHeader Map<String, String> headers) throws IOException {
-   
+      @RequestParam("file") MultipartFile file,
+      @RequestHeader Map<String, String> headers) throws Exception {
+    LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
+    if (loginInformation.loginType==LoginType.PROFESSOR) {
+      //trhow
+    }
+      Student student = controllersService.getStudent(loginInformation.username,
+          loginInformation.password);
+      if (student == null) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      }
+      Course course = controllersService.getCourse(id);
+      if (!controllersService.isStudentRegisteredToCourse(student,course)) {
+        //todo: error
+        throw new Exception();
+      }
+      Task task = controllersService.getTask(id,taskId);
+FileObject fileObject=fileToFileObject(file);
+      //tdo replae?
+    //todo: check date
+controllersService.addSubmission(id, task, student.getId(),fileObject);
     return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
+
+  private FileObject fileToFileObject( MultipartFile file) throws IOException {
+    String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+    return new FileObject(fileName, file.getBytes());
   }
 
 

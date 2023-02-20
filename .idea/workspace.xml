@@ -9,11 +9,14 @@
       <change beforePath="$PROJECT_DIR$/call_example2.sh" beforeDir="false" afterPath="$PROJECT_DIR$/call_example2.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/ControllersService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/ControllersService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/datatransferobjects/CourseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/datatransferobjects/CourseDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/model/Submission.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/model/Submission.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/model/SubmissionID.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/model/SubmissionID.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/model/Task.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/model/Task.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/ControllersService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/ControllersService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/CourseController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/CourseController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/datatransferobjects/CourseDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/datatransferobjects/CourseDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/myDB.lobs" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.lobs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/model/Submission.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/model/Submission.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/model/Task.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/model/Task.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/myDB.lobs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/myDB.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/myDB.script" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.script" afterDir="false" />
     </list>
@@ -124,7 +127,7 @@
       <workItem from="1675532034340" duration="6456000" />
       <workItem from="1675963864355" duration="826000" />
       <workItem from="1675973916725" duration="2406000" />
-      <workItem from="1676747345979" duration="9434000" />
+      <workItem from="1676747345979" duration="17994000" />
     </task>
     <servers />
   </component>
@@ -140,7 +143,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java</url>
-          <line>126</line>
+          <line>155</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>

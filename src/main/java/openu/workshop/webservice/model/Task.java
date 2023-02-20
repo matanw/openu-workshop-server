@@ -1,11 +1,13 @@
 package openu.workshop.webservice.model;
 
+import java.util.Collection;
 import java.util.Date;
 import javax.persistence.Embedded;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 @Entity
 public class Task {
@@ -22,6 +24,9 @@ public class Task {
 
   @ManyToOne
   private Course course;
+
+  @OneToMany(mappedBy = "task")
+  private Collection<Submission> submissions;
 
   public Task(TaskID id, Date submissionDeadline, Date checkDeadLine, double weightInGrade) {
     this.id = id;
@@ -69,4 +74,12 @@ public class Task {
   public void setFile(FileObject file) {
     this.file = file;
   }
+
+  /*public Collection<Submission> getSubmissions() {
+    return submissions;
+  }
+
+  public void setSubmissions(Collection<Submission> submissions) {
+    this.submissions = submissions;
+  }*/
 }

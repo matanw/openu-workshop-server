@@ -13,8 +13,12 @@ public class Submission {
   private Date submitDate;
   private Integer grade;
 
-  @ManyToOne
-  private Task task;
+  private FileObject file;
+
+  private FileObject feedbackFile;
+
+ // @ManyToOne
+  //private Task task;
 
   public Submission(){}
 
@@ -49,5 +53,21 @@ public class Submission {
 
   public void setTask(Task task) {
     this.task = task;
+  }
+
+  public FileObject getFile() {
+    return file;
+  }
+
+  public void setFile(FileObject file) {
+    this.file = file;
+  }
+
+  public FileObject getFeedbackFile() {
+    return feedbackFile;
+  }
+
+  public void setFeedbackFile(FileObject feedbackFile) {
+    this.feedbackFile = feedbackFile;
   }
 }
