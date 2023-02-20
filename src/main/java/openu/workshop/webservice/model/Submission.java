@@ -17,8 +17,8 @@ public class Submission {
 
   private FileObject feedbackFile;
 
- // @ManyToOne
-  //private Task task;
+ @ManyToOne
+  private Task task;
 
   public Submission(){}
 
