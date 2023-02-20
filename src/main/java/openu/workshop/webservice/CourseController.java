@@ -7,13 +7,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import openu.workshop.webservice.auth.LoginType;
 import openu.workshop.webservice.datatransferobjects.CourseDTO;
+import openu.workshop.webservice.datatransferobjects.SubmissionDTO;
 import openu.workshop.webservice.datatransferobjects.TaskDTO;
 import openu.workshop.webservice.model.Course;
 import openu.workshop.webservice.model.FileObject;
@@ -217,12 +216,24 @@ public class CourseController {
 
   /// submission (p)
   @GetMapping("/courses/{courseId}/tasks/{taskId}/submissions")
-  public List<Submission> GetCourseTasksSubmissions(@PathVariable int id,
+  public List<SubmissionDTO> GetCourseTasksSubmissions(@PathVariable int courseId,
       @PathVariable int taskId,
-      @RequestHeader Map<String, String> headers) {
-   
-    return Arrays.asList(
-    );
+      @RequestHeader Map<String, String> headers) throws Exception {
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    //todo: if it is student
+    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
+    if (professor == null){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+    Course course = controllersService.getCourse(courseId);
+    if (!course.getProfessor().getId().equals(professor.getId())) {
+      //todo: 403
+      throw new Exception();
+    }
+
+    List<Submission> submissions=controllersService.getSubmissions(courseId, taskId);//todo non exists task
+
+    return submissions.stream().map(SubmissionDTO::FromModel).toList();
   }
 
 
@@ -231,7 +242,8 @@ public class CourseController {
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestHeader Map<String, String> headers) {
-   
+
+
     return new Submission();// new Date(),null);
   }
 

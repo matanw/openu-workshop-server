@@ -167,4 +167,10 @@ public class ControllersService {
         }
     );
   }
+  public List<Submission> getSubmissions(int courseId, int taskId) {
+    return executeInDB(em->em.
+              createQuery("select s from Submission s where s.id.courseId = :courseId and s.id.taskId = :taskId", Submission.class)
+              .setParameter("courseId",courseId)
+              .setParameter("taskId",taskId).getResultList());
+  }
 }

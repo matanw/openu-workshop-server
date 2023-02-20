@@ -75,11 +75,11 @@ public class Task {
     this.file = file;
   }
 
-  /*public Collection<Submission> getSubmissions() {
+  public Collection<Submission> getSubmissions() {
     return submissions;
   }
 
   public void setSubmissions(Collection<Submission> submissions) {
     this.submissions = submissions;
-  }*/
+  }
 }
