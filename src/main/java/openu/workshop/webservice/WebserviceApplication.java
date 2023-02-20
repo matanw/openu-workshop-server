@@ -17,11 +17,11 @@ public class WebserviceApplication {
 				createEntityManagerFactory("default");
 		var entityManager = entityManagerFactory.createEntityManager();
 		entityManager.getTransaction().begin();
+		entityManager.createQuery("DELETE FROM Submission ").executeUpdate();
 		entityManager.createQuery("DELETE FROM Registration ").executeUpdate();
 		entityManager.createQuery("DELETE FROM Course").executeUpdate();
 		entityManager.createQuery("DELETE FROM Professor").executeUpdate();
 		entityManager.createQuery("DELETE FROM Task").executeUpdate();
-		entityManager.createQuery("DELETE FROM Submission ").executeUpdate();
 		entityManager.createQuery("DELETE FROM Student").executeUpdate();
 
 		Professor p1 = new Professor("123", "123pass");

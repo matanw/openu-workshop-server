@@ -1,6 +1,10 @@
 package openu.workshop.webservice.model;
 
 import java.util.Date;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -12,9 +16,18 @@ public class Submission {
   private SubmissionID id;
   private Date submitDate;
   private Integer grade;
-
+  @Embedded
+  @AttributeOverrides({
+      @AttributeOverride(name="Name",column=@Column(name="file_name")),
+      @AttributeOverride(name="Data",column=@Column(name="file_data"))
+  })
   private FileObject file;
 
+  @Embedded
+  @AttributeOverrides({
+      @AttributeOverride(name="Name",column=@Column(name="feedbackFile_name")),
+      @AttributeOverride(name="Data",column=@Column(name="feedbackFile_data"))
+  })
   private FileObject feedbackFile;
 
  @ManyToOne
