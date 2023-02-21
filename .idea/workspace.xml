@@ -9,6 +9,8 @@
       <change beforePath="$PROJECT_DIR$/call_example2.sh" beforeDir="false" afterPath="$PROJECT_DIR$/call_example2.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/ControllersService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/ControllersService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/ControllersService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/ControllersService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/CourseController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/CourseController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/myDB.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/myDB.script" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.script" afterDir="false" />
     </list>
@@ -120,7 +122,7 @@
       <workItem from="1675963864355" duration="826000" />
       <workItem from="1675973916725" duration="2406000" />
       <workItem from="1676747345979" duration="17994000" />
-      <workItem from="1676932518523" duration="5093000" />
+      <workItem from="1676932518523" duration="5507000" />
     </task>
     <servers />
   </component>
