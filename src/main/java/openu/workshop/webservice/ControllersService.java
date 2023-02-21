@@ -169,8 +169,41 @@ public class ControllersService {
   }
   public List<Submission> getSubmissions(int courseId, int taskId) {
     return executeInDB(em->em.
-              createQuery("select s from Submission s where s.id.courseId = :courseId and s.id.taskId = :taskId", Submission.class)
-              .setParameter("courseId",courseId)
-              .setParameter("taskId",taskId).getResultList());
+        createQuery("select s from Submission s where s.id.courseId = :courseId and s.id.taskId = :taskId", Submission.class)
+        .setParameter("courseId",courseId)
+        .setParameter("taskId",taskId).getResultList());
+  }
+  private Submission getSubmission(int courseId, int taskId, String studentId, EntityManager em) {
+    return em.
+        createQuery("select s from Submission s where s.id.courseId = :courseId and"+
+            " s.id.taskId = :taskId and s.id.studentId = :studentId", Submission.class)
+        .setParameter("courseId",courseId)
+        .setParameter("taskId",taskId)
+        .setParameter("studentId",studentId).getResultList().get(0);//handle non exist?
+  }
+
+  public Submission getSubmission(int courseId, int taskId, String studentId) {
+    return executeInDB(em->getSubmission(courseId, taskId, studentId,em));
+  }
+
+  public void addFeedBackFileToSubmission(int courseId, int taskId, String studentId,FileObject feedbackFile) {
+    executeInTransaction((em,t)->
+        {
+          Submission submission=getSubmission(courseId, taskId, studentId,em);
+          submission.setFeedbackFile(feedbackFile);
+          em.persist(submission);
+          return 0;
+        }
+    );
+  }
+  public void addGradeToSubmission(int courseId, int taskId, String studentId,int grade) {
+    executeInTransaction((em,t)->
+        {
+          Submission submission=getSubmission(courseId, taskId, studentId,em);
+          submission.setGrade(grade);
+          em.persist(submission);
+          return 0;
+        }
+    );
   }
 }
