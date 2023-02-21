@@ -14,6 +14,7 @@ import openu.workshop.webservice.auth.LoginType;
 import openu.workshop.webservice.datatransferobjects.CourseDTO;
 import openu.workshop.webservice.datatransferobjects.SubmissionDTO;
 import openu.workshop.webservice.datatransferobjects.TaskDTO;
+import openu.workshop.webservice.errors.ApiError;
 import openu.workshop.webservice.model.Course;
 import openu.workshop.webservice.model.FileObject;
 import openu.workshop.webservice.model.Professor;
@@ -27,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -483,28 +485,9 @@ controllersService.addSubmission(id, task, student.getId(),fileObject);
   }
 
   //todo: delete
-  @PostMapping("/realUpload")
-  public ResponseEntity<Resource> RealUpload( @RequestParam("file") MultipartFile file,
-      @RequestHeader Map<String, String> headers) throws IOException {
-   
-    Files.copy(file.getInputStream(), Paths.get("files").resolve(
-        Objects.requireNonNull(file.getOriginalFilename())));
-    return ResponseEntity.status(HttpStatus.CREATED).build();
-  }
-
-  //todo delete this signature
-  private ResponseEntity<Resource> fileResponse() throws IOException {
-
-    File file = new File("files/task1.txt");
-    Path path = Paths.get(file.getAbsolutePath());
-    ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
-    HttpHeaders responseHeaders = new HttpHeaders();
-    responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=myDoc.docx");
-    return ResponseEntity.ok()
-        .headers(responseHeaders)
-        .contentLength(file.length())
-        .contentType(MediaType.APPLICATION_OCTET_STREAM)
-        .body(resource);
+  @GetMapping("/apierr")
+  public SubmissionDTO getApiError( ) throws Exception {
+    throw new ApiError("ggg", HttpStatus.BAD_REQUEST);
   }
   private ResponseEntity<Resource> fileResponse(FileObject fileObject){
     HttpHeaders responseHeaders = new HttpHeaders();
