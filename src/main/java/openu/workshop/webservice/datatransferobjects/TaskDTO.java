@@ -14,6 +14,8 @@ public class TaskDTO {
   private Date checkDeadLine;
   private double weightInGrade;
 
+  private boolean hasFile;
+
   public TaskDTO(){}
 
 
@@ -49,12 +51,21 @@ public class TaskDTO {
     this.weightInGrade = weightInGrade;
   }
 
+  public boolean isHasFile() {
+    return hasFile;
+  }
+
+  public void setHasFile(boolean hasFile) {
+    this.hasFile = hasFile;
+  }
+
   public static TaskDTO FromModel(Task task){
     TaskDTO taskDTO = new TaskDTO();
     taskDTO.setId(task.getId().taskId);
     taskDTO.setSubmissionDeadline(task.getSubmissionDeadline());
     taskDTO.setCheckDeadLine(task.getCheckDeadLine());
     taskDTO.setWeightInGrade(task.getWeightInGrade());
+    taskDTO.setHasFile(task.getFile()!=null);
     return taskDTO;
   }
 
