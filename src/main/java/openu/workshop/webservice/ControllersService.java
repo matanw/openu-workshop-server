@@ -101,14 +101,6 @@ public class ControllersService {
         .setParameter("courseId",courseId).getResultList());
   }
 
-  public void saveTasks(List<Task> tasks) {
-    executeInTransaction((em, t)->{
-      for (Task task: tasks){
-        em.persist(task);
-      }
-      return 0;
-    });
-  }
 
   public boolean saveFile(int courseId, int taskId, FileObject file) {
     return executeInTransaction((em,t)->
@@ -164,8 +156,7 @@ public class ControllersService {
               createQuery("select t from Task t where t.id.courseId = :courseId and t.id.taskId = :taskId", Task.class)
               .setParameter("courseId",courseId)
               .setParameter("taskId",taskId).getResultList();
-          //todo handle non 1
-          return tasks.get(0);
+          return singleOrNull(tasks);
         }
     );
   }
@@ -218,5 +209,43 @@ public class ControllersService {
     }
     throw new RuntimeException("list contains more than one item, "+
         "expected to have maximum one item by db constraints");
+  }
+
+  public void saveTask(Task task) {
+    executeInTransaction((em,t)->{
+      em.persist(task);
+      return 0;
+    });
+  }
+
+  public void deleteTask(int courseId, int taskId) {
+    executeInTransaction((em,t)->{
+      List<Task> tasks=em.
+          createQuery("select t from Task t where t.id.courseId = :courseId and t.id.taskId = :taskId", Task.class)
+          .setParameter("courseId",courseId)
+          .setParameter("taskId",taskId).getResultList();
+      //todo handle non 1
+      Task task= tasks.get(0);
+      em.remove(task);
+      return 0;
+    });
+  }
+
+  public void updateTaskWithoutFile(int courseId, int taskId, Task newTask) {
+     executeInTransaction((em,t)->
+        {
+          List<Task> tasks=em.
+              createQuery("select t from Task t where t.id.courseId = :courseId and t.id.taskId = :taskId", Task.class)
+              .setParameter("courseId",courseId)
+              .setParameter("taskId",taskId).getResultList();
+          //todo handle non 1
+          Task task= tasks.get(0);
+          task.setWeightInGrade(newTask.getWeightInGrade());
+          task.setCheckDeadLine(newTask.getCheckDeadLine());
+          task.setSubmissionDeadline(newTask.getSubmissionDeadline());
+          em.persist(task);
+          return 0;
+        }
+    );
   }
 }

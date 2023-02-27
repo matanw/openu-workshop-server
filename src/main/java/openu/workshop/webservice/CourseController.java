@@ -18,6 +18,8 @@ import openu.workshop.webservice.errors.ApiError;
 import openu.workshop.webservice.errors.CourseNotFoundOrPermissionDenied;
 import openu.workshop.webservice.errors.MethodAllowedOnlyForProfessorsException;
 import openu.workshop.webservice.errors.MethodAllowedOnlyForStudentsException;
+import openu.workshop.webservice.errors.TaskAlreadyExists;
+import openu.workshop.webservice.errors.TaskIDMismatchException;
 import openu.workshop.webservice.errors.TaskNotFoundError;
 import openu.workshop.webservice.errors.UnauthorizedException;
 import openu.workshop.webservice.model.Course;
@@ -35,6 +37,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -95,15 +98,51 @@ public class CourseController {
   }
 
   @PostMapping("/courses/{courseId}/tasks")
-  public ResponseEntity<Resource> CreateCourseTasks(@PathVariable int courseId,
-      @RequestBody List<TaskDTO> taskDTOs,
+  public ResponseEntity<Resource> CreateCourseTask(@PathVariable int courseId,
+      @RequestBody TaskDTO taskDTO,
       @RequestHeader Map<String, String> headers) throws Exception{
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
-    List<Task> tasks = taskDTOs.stream().map(t-> t.ToModel(courseId)).toList();
-    controllersService.saveTasks(tasks);
+    Task task = taskDTO.ToModel(courseId);
+    if  (controllersService.getTask(courseId,task.getId().taskId)!=null){
+      throw new TaskAlreadyExists(courseId, task.getId().taskId);
+    }
+    controllersService.saveTask(task);
     return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
+
+  @PutMapping("/courses/{courseId}/tasks/{taskId}")
+  public ResponseEntity<Resource> ReplaceCourseTask(@PathVariable int courseId,
+      @PathVariable int taskId,
+      @RequestBody TaskDTO taskDTO,
+      @RequestHeader Map<String, String> headers) throws Exception{
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    if (taskDTO.getId()!=taskId){
+      throw new TaskIDMismatchException();
+    }
+    Task task = taskDTO.ToModel(courseId);
+    if  (controllersService.getTask(courseId,task.getId().taskId)==null){
+      throw new TaskNotFoundError(courseId, task.getId().taskId);
+    }
+    controllersService.updateTaskWithoutFile(courseId, taskId,task);
+    return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
+
+  @DeleteMapping("/courses/{courseId}/tasks/{taskId}")
+  public ResponseEntity<Resource> DeleteCourseTask(@PathVariable int courseId,
+      @PathVariable  int taskId,
+      @RequestHeader Map<String, String> headers) throws Exception{
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    if  (controllersService.getTask(courseId,taskId)==null){
+      throw new TaskNotFoundError(courseId, taskId);
+    }
+    controllersService.deleteTask(courseId, taskId);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   @GetMapping("/courses/{courseId}/tasks/{taskId}/file")

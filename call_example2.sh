@@ -8,9 +8,18 @@ curl  --fail -w "\n" -u p1:1p $URL/courses/1
 curl  --fail -w "\n" -u p1:1p $URL/courses/1/tasks
 curl  --fail -w "\n" -u p1:1p $URL/courses/1/tasks -X POST \
    -H "Content-Type: application/json" \
-   -d '[{"id":1,"submissionDeadline":"2023-01-04","checkDeadLine":"2023-01-04", "weightInGrade":0.1},{"id":2,"submissionDeadline":"2023-01-04","checkDeadLine":"2023-01-04", "weightInGrade":0.3}]'
+   -d '{"id":1,"submissionDeadline":"2023-01-04","checkDeadLine":"2023-01-04", "weightInGrade":0.1}'
 curl  --fail -w "\n" -u p1:1p $URL/courses/1/tasks
-
+curl  --fail -w "\n" -u p1:1p $URL/courses/1/tasks/1 -X PUT \
+   -H "Content-Type: application/json" \
+   -d '{"id":1,"submissionDeadline":"2023-01-05","checkDeadLine":"2023-01-04", "weightInGrade":0.5}'
+curl  --fail -w "\n" -u p1:1p $URL/courses/1/tasks
+curl  --fail -w "\n" -u p1:1p $URL/courses/1/tasks -X POST \
+   -H "Content-Type: application/json" \
+   -d '{"id":2,"submissionDeadline":"2023-01-04","checkDeadLine":"2023-01-04", "weightInGrade":0.1}'
+curl  --fail -w "\n" -u p1:1p $URL/courses/1/tasks
+curl  --fail -w "\n" -u p1:1p $URL/courses/1/tasks/2 -X DELETE
+curl  --fail -w "\n" -u p1:1p $URL/courses/1/tasks
 TASK_FILE=/tmp/task
 echo "1+1=?" > $TASK_FILE
 ANSWER_FILE=/tmp/answer
