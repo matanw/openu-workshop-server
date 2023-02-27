@@ -15,6 +15,11 @@ import openu.workshop.webservice.datatransferobjects.CourseDTO;
 import openu.workshop.webservice.datatransferobjects.SubmissionDTO;
 import openu.workshop.webservice.datatransferobjects.TaskDTO;
 import openu.workshop.webservice.errors.ApiError;
+import openu.workshop.webservice.errors.CourseNotFoundOrPermissionDenied;
+import openu.workshop.webservice.errors.MethodAllowedOnlyForProfessorsException;
+import openu.workshop.webservice.errors.MethodAllowedOnlyForStudentsException;
+import openu.workshop.webservice.errors.TaskNotFoundError;
+import openu.workshop.webservice.errors.UnauthorizedException;
 import openu.workshop.webservice.model.Course;
 import openu.workshop.webservice.model.FileObject;
 import openu.workshop.webservice.model.Professor;
@@ -58,100 +63,45 @@ public class CourseController {
       Professor professor = controllersService.getProfessor(loginInformation.username,
           loginInformation.password);
       if (professor == null) {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        throw new UnauthorizedException();
       }
       List<Course> courses = controllersService.listCourses(professor);
       return courses.stream().map(CourseDTO::FromModel).toList();
-    }else{
+    }
      Student student = controllersService.getStudent(loginInformation.username,
          loginInformation.password);
      if (student == null) {
-       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+       throw new UnauthorizedException();
      }
      List<Course> courses = controllersService.listCourses(student);
      return courses.stream().map(CourseDTO::FromModel).toList();
-   }
   }
 
-  @GetMapping("/courses/{id}")
-  public CourseDTO GetCourse(@PathVariable int id, @RequestHeader Map<String, String> headers) throws Exception{
+  @GetMapping("/courses/{courseId}")
+  public CourseDTO GetCourse(@PathVariable int courseId, @RequestHeader Map<String, String> headers) throws Exception{
     LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
-    if (loginInformation.loginType==LoginType.PROFESSOR) {
-      Professor professor = controllersService.getProfessor(loginInformation.username,
-          loginInformation.password);
-      if (professor == null) {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-      }
-      Course course = controllersService.getCourse(id);
-      if (!course.getProfessor().getId().equals(professor.getId())) {
-        //todo: 403
-        throw new Exception();
-      }
-      return CourseDTO.FromModel(course);
-    }else{
-      Student student = controllersService.getStudent(loginInformation.username,
-          loginInformation.password);
-      if (student == null) {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-      }
-      Course course = controllersService.getCourse(id);
-      if (!controllersService.isStudentRegisteredToCourse(student,course)) {
-        //todo: error
-        throw new Exception();
-      }
-      return CourseDTO.FromModel(course);
-    }
+    verifyCourseExistAndMatchPerson(loginInformation, courseId);
+    Course course = controllersService.getCourse(courseId);
+    return CourseDTO.FromModel(course);
   }
 
-  @GetMapping("/courses/{id}/tasks")
-  public List<TaskDTO> GetCourseTasks(@PathVariable int id,
+  @GetMapping("/courses/{courseId}/tasks")
+  public List<TaskDTO> GetCourseTasks(@PathVariable int courseId,
       @RequestHeader Map<String, String> headers) throws Exception {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
-   if (loginInformation.loginType==LoginType.PROFESSOR) {
-     Professor professor = controllersService.getProfessor(loginInformation.username,
-         loginInformation.password);
-     if (professor == null) {
-       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-     }
-     Course course = controllersService.getCourse(id);
-     if (!course.getProfessor().getId().equals(professor.getId())) {
-       //todo: 403
-       throw new Exception();
-     }
-     List<Task> tasks = controllersService.getTasksByCourse(id);
-     return tasks.stream().map(TaskDTO::FromModel).toList();
-   }else{
-     Student student = controllersService.getStudent(loginInformation.username,
-         loginInformation.password);
-     if (student == null) {
-       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-     }
-     Course course = controllersService.getCourse(id);
-     if (!controllersService.isStudentRegisteredToCourse(student,course)) {
-       //todo: error
-       throw new Exception();
-     }
-     List<Task> tasks = controllersService.getTasksByCourse(id);
-     return tasks.stream().map(TaskDTO::FromModel).toList();
-   }
+    verifyCourseExistAndMatchPerson(loginInformation, courseId);
+    List<Task> tasks = controllersService.getTasksByCourse(courseId);
+    return tasks.stream().map(TaskDTO::FromModel).toList();
   }
 
-  @PostMapping("/courses/{id}/tasks")
-  public ResponseEntity<Resource> CreateCourseTasks(@PathVariable int id,
+  @PostMapping("/courses/{courseId}/tasks")
+  public ResponseEntity<Resource> CreateCourseTasks(@PathVariable int courseId,
       @RequestBody List<TaskDTO> taskDTOs,
-      @RequestHeader Map<String, String> headers) throws  Exception{
+      @RequestHeader Map<String, String> headers) throws Exception{
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
-    //todo: if it is student
-    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
-    if (professor == null){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-    Course course = controllersService.getCourse(id);
-    if (!course.getProfessor().getId().equals(professor.getId())){
-      //todo: 403
-      throw new Exception();
-    }
-    List<Task> tasks = taskDTOs.stream().map(t-> t.ToModel(id)).toList();
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    List<Task> tasks = taskDTOs.stream().map(t-> t.ToModel(courseId)).toList();
     controllersService.saveTasks(tasks);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
@@ -160,33 +110,9 @@ public class CourseController {
   public ResponseEntity<Resource> GetCourseTaskFile(@PathVariable int courseId, @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) throws Exception {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
-    if ( loginInformation.loginType==LoginType.PROFESSOR) {
-      Professor professor = controllersService.getProfessor(loginInformation.username,
-          loginInformation.password);
-      if (professor == null) {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-      }
-      Course course = controllersService.getCourse(courseId);
-      if (!course.getProfessor().getId().equals(professor.getId())) {
-        //todo: 403
-        throw new Exception();
-      }
+    verifyCourseExistAndMatchPerson(loginInformation, courseId);
       FileObject fileObject = controllersService.getFile(courseId, taskId);
       return fileResponse(fileObject);
-    }else{
-      Student student = controllersService.getStudent(loginInformation.username,
-          loginInformation.password);
-      if (student == null) {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-      }
-      Course course = controllersService.getCourse(courseId);
-      if (!controllersService.isStudentRegisteredToCourse(student,course)) {
-        //todo: error
-        throw new Exception();
-      }
-      FileObject fileObject = controllersService.getFile(courseId, taskId);
-      return fileResponse(fileObject);
-    }
   }
 
   @PostMapping("/courses/{courseId}/tasks/{taskId}/file")
@@ -194,16 +120,8 @@ public class CourseController {
       @RequestParam("file") MultipartFile file,
       @RequestHeader Map<String, String> headers) throws Exception {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
-    //todo: if it is student
-    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
-    if (professor == null){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-    Course course = controllersService.getCourse(courseId);
-    if (!course.getProfessor().getId().equals(professor.getId())){
-      //todo: 403
-      throw new Exception();
-    }
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation, courseId);
     FileObject fileObject =fileToFileObject(file);
     controllersService.saveFile(courseId, taskId, fileObject);
     return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -216,23 +134,16 @@ public class CourseController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  /// submission (p)
   @GetMapping("/courses/{courseId}/tasks/{taskId}/submissions")
   public List<SubmissionDTO> GetCourseTasksSubmissions(@PathVariable int courseId,
       @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) throws Exception {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
-    //todo: if it is student
-    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
-    if (professor == null){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-    Course course = controllersService.getCourse(courseId);
-    if (!course.getProfessor().getId().equals(professor.getId())) {
-      //todo: 403
-      throw new Exception();
-    }
-    List<Submission> submissions=controllersService.getSubmissions(courseId, taskId);//todo non exists task
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
+    List<Submission> submissions=controllersService.getSubmissions(courseId, taskId);
+    //todo non exists task, maybe save connection in task and get task
 
     return submissions.stream().map(SubmissionDTO::FromModel).toList();
   }
@@ -499,5 +410,47 @@ controllersService.addSubmission(id, task, student.getId(),fileObject);
         .body(new ByteArrayResource(fileObject.Data));
   }
 
+
+  private void verifyCourseExistAndMatchPerson(LoginInformation loginInformation, int courseId) throws Exception{
+    if (loginInformation.loginType==LoginType.PROFESSOR) {
+      Professor professor = controllersService.getProfessor(loginInformation.username,
+          loginInformation.password);
+      if (professor == null) {
+        throw new UnauthorizedException();
+      }
+      Course course = controllersService.getCourse(courseId);
+      if (course ==null || !course.getProfessor().getId().equals(professor.getId())) {
+        throw new CourseNotFoundOrPermissionDenied(courseId);
+      }
+      return;
+    }
+    Student student = controllersService.getStudent(loginInformation.username,
+          loginInformation.password);
+      if (student == null) {
+        throw new UnauthorizedException();
+      }
+      Course course = controllersService.getCourse(courseId);
+      if (course== null || !controllersService.isStudentRegisteredToCourse(student,course)) {
+        throw new CourseNotFoundOrPermissionDenied(courseId);
+      }
+  }
+
+  private void assertCallerIsStudent(LoginInformation loginInformation) throws ApiError{
+    if (loginInformation.loginType ==LoginType.PROFESSOR){
+      throw new MethodAllowedOnlyForStudentsException();
+    }
+  }
+  private void assertCallerIsProfessor(LoginInformation loginInformation) throws ApiError{
+    if (loginInformation.loginType ==LoginType.STUDENT){
+      throw new MethodAllowedOnlyForProfessorsException();
+    }
+  }
+
+  private void assertTaskExists(int courseId, int taskId) throws  ApiError{
+    Task task = controllersService.getTask(courseId, taskId);
+    if (task == null){
+      throw new TaskNotFoundError(courseId, taskId);
+    }
+  }
 
 }

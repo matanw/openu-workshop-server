@@ -110,18 +110,20 @@ public class ControllersService {
     });
   }
 
-  public void saveFile(int courseId, int taskId, FileObject file) {
-    executeInTransaction((em,t)->
+  public boolean saveFile(int courseId, int taskId, FileObject file) {
+    return executeInTransaction((em,t)->
         {
           List<Task> tasks=em.
               createQuery("select t from Task t where t.id.courseId = :courseId and t.id.taskId = :taskId", Task.class)
               .setParameter("courseId",courseId)
               .setParameter("taskId",taskId).getResultList();
-          //todo: handle non 1
-          Task task = tasks.get(0);
+          Task task = singleOrNull(tasks);
+          if (task == null){
+            return false;
+          }
           task.setFile(file);
           em.persist(task);
-          return 0;
+          return true;
         }
     );
   }
@@ -205,5 +207,16 @@ public class ControllersService {
           return 0;
         }
     );
+  }
+
+  private <T> T singleOrNull(List<T> list){
+    if (list.size() ==0 ){
+      return null;
+    }
+    if (list.size()==1){
+      return list.get(0);
+    }
+    throw new RuntimeException("list contains more than one item, "+
+        "expected to have maximum one item by db constraints");
   }
 }
