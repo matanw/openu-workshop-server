@@ -5,21 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7ebd65e3-5d3e-4ba0-87da-360fd448fce5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/errors/CourseNotFoundOrPermissionDenied.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/errors/MethodAllowedOnlyForProfessorsException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/errors/MethodAllowedOnlyForStudentsException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/errors/TaskNotFoundError.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/errors/UnauthorizedException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/ControllersService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/ControllersService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/auth/AuthManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/auth/AuthManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/ControllersService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/ControllersService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/CourseController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/CourseController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/auth/AuthManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/auth/AuthManager.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/myDB.lobs" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.lobs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/myDB.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/myDB.script" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.script" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/call_example.sh" beforeDir="false" afterPath="$PROJECT_DIR$/call_example.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/call_example2.sh" beforeDir="false" afterPath="$PROJECT_DIR$/call_example2.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbhacks/createdbusejava.txt" beforeDir="false" afterPath="$PROJECT_DIR$/dbhacks/createdbusejava.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbhacks/myDB.script" beforeDir="false" afterPath="$PROJECT_DIR$/dbhacks/myDB.script" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/WebserviceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/WebserviceApplication.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -137,7 +127,7 @@
       <workItem from="1676932518523" duration="5507000" />
       <workItem from="1676975061509" duration="2957000" />
       <workItem from="1677188234498" duration="4297000" />
-      <workItem from="1677520019564" duration="1315000" />
+      <workItem from="1677520019564" duration="1638000" />
     </task>
     <servers />
   </component>

@@ -18,8 +18,8 @@
   		entityManager.createQuery("DELETE FROM Professor").executeUpdate();
   		entityManager.createQuery("DELETE FROM Task").executeUpdate();
 
-  		Professor p1 = new Professor("123", "123pass");
-  		Professor p2 = new Professor("456", "456pass");
+  		Professor p1 = new Professor("1", "1p");
+  		Professor p2 = new Professor("2", "2p");
   		entityManager.persist(p1);
   		entityManager.persist(p2);
   		entityManager.persist(new Course(1, "java", p1));

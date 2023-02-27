@@ -24,13 +24,13 @@ public class WebserviceApplication {
 		entityManager.createQuery("DELETE FROM Task").executeUpdate();
 		entityManager.createQuery("DELETE FROM Student").executeUpdate();
 
-		Professor p1 = new Professor("123", "123pass");
-		Professor p2 = new Professor("456", "456pass");
+		Professor p1 = new Professor("1", "1p");
+		Professor p2 = new Professor("2", "2p");
 		Course c1=new Course(1, "java", p1);
 		Course c2=new Course(2, "python", p1);
 		Course c3=new Course(3, "history", p2);
 		Course c4=new Course(4, "theology", p2);
-		Student s1 = new Student("789","789pass");
+		Student s1 = new Student("3","3p");
 		Registration r1=new Registration(s1,c1);
 		for (Object o: Arrays.asList(p1,p2,c1,c2,c3,c4,r1,s1)){
 			entityManager.persist(o);

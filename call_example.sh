@@ -36,9 +36,9 @@ curl  --fail  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/file -i -X PUT -H
 echo "*****Get submissions (p) *****"
 curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions
 echo "*****Get submission (p) *****"
-curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s123
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s1
 echo "*****Get submission file (p) *****"
-curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s123/file
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s1/file
 
 echo "*****Get my submission (s) *****"
 curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/mysubmission
@@ -55,18 +55,18 @@ curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/mysubmission/file -i -X P
 echo "*****Get my submission feedback file (s) *****"
 curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/mysubmission/feedbackFile
 echo "*****Get feedback file (p) *****"
-curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s123/feedbackFile
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s1/feedbackFile
 echo "*****Post submission feedback file (p) *****"
-curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s123/feedbackFile -i -X POST -H "Content-Type: multipart/form-data"  \
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s1/feedbackFile -i -X POST -H "Content-Type: multipart/form-data"  \
   -F "file=@a_file.txt"
 echo "*****Put submission feedback file (p) *****"
-curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s123/feedbackFile -i -X PUT -H "Content-Type: multipart/form-data"  \
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/7/submissions/s1/feedbackFile -i -X PUT -H "Content-Type: multipart/form-data"  \
   -F "file=@a_file.txt"
 echo "***Post grade (p)"
-curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/12/submissions/s123/grade \
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/12/submissions/s1/grade \
    -H "Content-Type: application/json" \
    -d '96' -X POST -v
 echo "***Put grade (p)"
-curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/12/submissions/s123/grade \
+curl  --fail -w "\n" -u aaa:bbb $URL/courses/8/tasks/12/submissions/s1/grade \
    -H "Content-Type: application/json" \
    -d '96' -X PUT -v
