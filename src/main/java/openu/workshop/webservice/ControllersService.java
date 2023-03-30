@@ -133,20 +133,30 @@ public class ControllersService {
     );
   }
 
-  public void addSubmission(int courseId,Task task, String studentId, FileObject fileObject) {
+  public void addSubmission(int courseId,int taskId, String studentId, FileObject fileObject) {
     SubmissionID submissionID=new SubmissionID();
     submissionID.courseId=courseId;
-    submissionID.taskId=task.getId().taskId;
+    submissionID.taskId=taskId;
     submissionID.studentId=studentId;
     Submission submission=new Submission();
     submission.setId(submissionID);
     submission.setSubmitDate(new Date());
     submission.setFile(fileObject);
-    submission.setTask(task);
+    submission.setTask(getTask(courseId, taskId));
     executeInTransaction((em,t)->{
       em.persist(submission);
       return 0;
     });
+  }
+  public void replaceSubmissionFile(int courseId,int taskId, String studentId, FileObject file) {
+    executeInTransaction((em,t)->
+        {
+          Submission submission=getSubmission(courseId, taskId, studentId,em);
+          submission.setFile(file);
+          em.persist(submission);
+          return 0;
+        }
+    );
   }
 
   public Task getTask(int courseId, int taskId) {
@@ -167,19 +177,19 @@ public class ControllersService {
         .setParameter("taskId",taskId).getResultList());
   }
   private Submission getSubmission(int courseId, int taskId, String studentId, EntityManager em) {
-    return em.
+    return singleOrNull(em.
         createQuery("select s from Submission s where s.id.courseId = :courseId and"+
             " s.id.taskId = :taskId and s.id.studentId = :studentId", Submission.class)
         .setParameter("courseId",courseId)
         .setParameter("taskId",taskId)
-        .setParameter("studentId",studentId).getResultList().get(0);//handle non exist?
+        .setParameter("studentId",studentId).getResultList());
   }
 
   public Submission getSubmission(int courseId, int taskId, String studentId) {
     return executeInDB(em->getSubmission(courseId, taskId, studentId,em));
   }
 
-  public void addFeedBackFileToSubmission(int courseId, int taskId, String studentId,FileObject feedbackFile) {
+  public void setSubmissionFeedBackFile(int courseId, int taskId, String studentId,FileObject feedbackFile) {
     executeInTransaction((em,t)->
         {
           Submission submission=getSubmission(courseId, taskId, studentId,em);
@@ -189,7 +199,7 @@ public class ControllersService {
         }
     );
   }
-  public void addGradeToSubmission(int courseId, int taskId, String studentId,int grade) {
+  public void  setSubmissionGrade(int courseId, int taskId, String studentId,int grade) {
     executeInTransaction((em,t)->
         {
           Submission submission=getSubmission(courseId, taskId, studentId,em);

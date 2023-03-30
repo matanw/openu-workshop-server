@@ -28,6 +28,8 @@ FEEDBACK_FILE=/tmp/feedback
 echo "no, it's 2" > $FEEDBACK_FILE
 curl  --fail -w "\n" -u p1:1p $URL/courses/1/tasks/1/file -i -X POST -H "Content-Type: multipart/form-data"  \
   -F "file=@$TASK_FILE"
+curl  --fail -w "\n" -u p1:1p $URL/courses/1/tasks/1/file -i -X PUT -H "Content-Type: multipart/form-data"  \
+  -F "file=@$TASK_FILE"
 curl  --fail -w "\n" -u p1:1p $URL/courses/1/tasks/1/file
 curl  --fail -w "\n" -u s3:3p $URL/courses
 curl  --fail -w "\n" -u s3:3p $URL/courses/1

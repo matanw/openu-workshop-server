@@ -16,8 +16,14 @@ import openu.workshop.webservice.datatransferobjects.SubmissionDTO;
 import openu.workshop.webservice.datatransferobjects.TaskDTO;
 import openu.workshop.webservice.errors.ApiError;
 import openu.workshop.webservice.errors.CourseNotFoundOrPermissionDenied;
+import openu.workshop.webservice.errors.FileAlreadyExistsException;
+import openu.workshop.webservice.errors.FileNotExistException;
+import openu.workshop.webservice.errors.GradeAlreayExistsException;
+import openu.workshop.webservice.errors.GradeNotExistException;
 import openu.workshop.webservice.errors.MethodAllowedOnlyForProfessorsException;
 import openu.workshop.webservice.errors.MethodAllowedOnlyForStudentsException;
+import openu.workshop.webservice.errors.SubmissionAlreadyExistExeption;
+import openu.workshop.webservice.errors.SubmissionNotFoundExeption;
 import openu.workshop.webservice.errors.TaskAlreadyExists;
 import openu.workshop.webservice.errors.TaskIDMismatchException;
 import openu.workshop.webservice.errors.TaskNotFoundError;
@@ -150,8 +156,12 @@ public class CourseController {
       @RequestHeader Map<String, String> headers) throws Exception {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     verifyCourseExistAndMatchPerson(loginInformation, courseId);
-      FileObject fileObject = controllersService.getFile(courseId, taskId);
-      return fileResponse(fileObject);
+    assertTaskExists(courseId, taskId);
+    FileObject fileObject = controllersService.getFile(courseId, taskId);
+    if (fileObject == null){
+      throw new FileNotExistException();
+    }
+    return fileResponse(fileObject);
   }
 
   @PostMapping("/courses/{courseId}/tasks/{taskId}/file")
@@ -161,15 +171,28 @@ public class CourseController {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation, courseId);
-    FileObject fileObject =fileToFileObject(file);
+    assertTaskExists(courseId, taskId);
+    if (controllersService.getFile(courseId,taskId)!=null){
+      throw new FileAlreadyExistsException();
+    }
+    FileObject fileObject = fileToFileObject(file);
     controllersService.saveFile(courseId, taskId, fileObject);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  @PutMapping("/courses/{id}/tasks/{taskId}/file")
-  public ResponseEntity<Resource> ReplaceCourseTaskFile(@PathVariable int id, @PathVariable int taskId,
+  @PutMapping("/courses/{courseId}/tasks/{taskId}/file")
+  public ResponseEntity<Resource> ReplaceCourseTaskFile(@PathVariable int courseId, @PathVariable int taskId,
       @RequestParam("file") MultipartFile file,
-      @RequestHeader Map<String, String> headers) throws IOException {
+      @RequestHeader Map<String, String> headers) throws Exception {
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation, courseId);
+    assertTaskExists(courseId, taskId);
+    if (controllersService.getFile(courseId,taskId)==null){
+      throw new FileNotExistException();
+    }
+    FileObject fileObject = fileToFileObject(file);
+    controllersService.saveFile(courseId, taskId, fileObject);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
@@ -182,8 +205,6 @@ public class CourseController {
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
     assertTaskExists(courseId, taskId);
     List<Submission> submissions=controllersService.getSubmissions(courseId, taskId);
-    //todo non exists task, maybe save connection in task and get task
-
     return submissions.stream().map(SubmissionDTO::FromModel).toList();
   }
 
@@ -193,20 +214,14 @@ public class CourseController {
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestHeader Map<String, String> headers) throws Exception {
-
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
-    //todo: if it is student
-    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
-    if (professor == null){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-    Course course = controllersService.getCourse(courseId);
-    if (!course.getProfessor().getId().equals(professor.getId())) {
-      //todo: 403
-      throw new Exception();
-    }
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
     Submission submission=controllersService.getSubmission(courseId, taskId,studentId);
-
+    if (submission == null){
+      throw  new SubmissionNotFoundExeption(courseId, taskId, studentId);
+    }
     return SubmissionDTO.FromModel(submission);
   }
 
@@ -215,19 +230,15 @@ public class CourseController {
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestHeader Map<String, String> headers) throws Exception {
-
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
-    //todo: if it is student
-    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
-    if (professor == null){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-    Course course = controllersService.getCourse(courseId);
-    if (!course.getProfessor().getId().equals(professor.getId())) {
-      //todo: 403
-      throw new Exception();
-    }
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
     Submission submission=controllersService.getSubmission(courseId, taskId,studentId);
+    if (submission == null){
+      throw  new SubmissionNotFoundExeption(courseId, taskId, studentId);
+    }
+    //submission is created with file, so no need to check on file
     return fileResponse(submission.getFile());
   }
 
@@ -235,24 +246,15 @@ public class CourseController {
   public SubmissionDTO GetCourseTasksMySubmission(@PathVariable int courseId,
       @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) throws Exception {
-
-    LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
-    if (loginInformation.loginType==LoginType.PROFESSOR) {
-      //trhow
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    assertCallerIsStudent(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
+    String studentId= loginInformation.username;
+    Submission submission=controllersService.getSubmission(courseId, taskId,studentId);
+    if (submission == null){
+      throw  new SubmissionNotFoundExeption(courseId, taskId, studentId);
     }
-    Student student = controllersService.getStudent(loginInformation.username,
-        loginInformation.password);
-    if (student == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-    Course course = controllersService.getCourse(courseId);
-    if (!controllersService.isStudentRegisteredToCourse(student,course)) {
-      //todo: error
-      throw new Exception();
-    }
-    Task task = controllersService.getTask(courseId,taskId);
-    //handle not found task
-    Submission submission=controllersService.getSubmission(courseId,taskId,student.getId());
     return SubmissionDTO.FromModel(submission);
   }
 
@@ -260,90 +262,72 @@ public class CourseController {
   public ResponseEntity<Resource> GetCourseTasksMySubmissionFile(@PathVariable int courseId,
       @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) throws Exception {
-    LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
-    if (loginInformation.loginType==LoginType.PROFESSOR) {
-      //trhow
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    assertCallerIsStudent(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
+    String studentId= loginInformation.username;
+    Submission submission=controllersService.getSubmission(courseId, taskId,studentId);
+    if (submission == null){
+      throw  new SubmissionNotFoundExeption(courseId, taskId, studentId);
     }
-    Student student = controllersService.getStudent(loginInformation.username,
-        loginInformation.password);
-    if (student == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-    Course course = controllersService.getCourse(courseId);
-    if (!controllersService.isStudentRegisteredToCourse(student,course)) {
-      //todo: error
-      throw new Exception();
-    }
-    Task task = controllersService.getTask(courseId,taskId);
-    //handle not found task
-    Submission submission=controllersService.getSubmission(courseId,taskId,student.getId());
+    // submission always has a file
     return fileResponse(submission.getFile());
   }
 
-  @PostMapping("/courses/{id}/tasks/{taskId}/mysubmission/file")
-  public ResponseEntity<Resource> CreateCourseTasksMySubmissionFile(@PathVariable int id,
+  @PostMapping("/courses/{courseId}/tasks/{taskId}/mysubmission/file")
+  public ResponseEntity<Resource> CreateCourseTasksMySubmissionFile(@PathVariable int courseId,
       @PathVariable int taskId,
       @RequestParam("file") MultipartFile file,
       @RequestHeader Map<String, String> headers) throws Exception {
-    LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
-    if (loginInformation.loginType==LoginType.PROFESSOR) {
-      //trhow
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    assertCallerIsStudent(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
+    String studentId= loginInformation.username;
+    if (controllersService.getSubmission(courseId, taskId,studentId) != null){
+      throw  new SubmissionAlreadyExistExeption(courseId, taskId, studentId);
     }
-      Student student = controllersService.getStudent(loginInformation.username,
-          loginInformation.password);
-      if (student == null) {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-      }
-      Course course = controllersService.getCourse(id);
-      if (!controllersService.isStudentRegisteredToCourse(student,course)) {
-        //todo: error
-        throw new Exception();
-      }
-      Task task = controllersService.getTask(id,taskId);
-FileObject fileObject=fileToFileObject(file);
-
-    //todo: check date
-controllersService.addSubmission(id, task, student.getId(),fileObject);
+    FileObject fileObject=fileToFileObject(file);
+    controllersService.addSubmission(courseId, taskId, studentId,fileObject);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  private FileObject fileToFileObject( MultipartFile file) throws IOException {
-    String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-    return new FileObject(fileName, file.getBytes());
-  }
 
-
-  @PutMapping("/courses/{id}/tasks/{taskId}/mysubmission/file")
-  public ResponseEntity<Resource> ReplaceCourseTasksMySubmissionFile(@PathVariable int id,
+  @PutMapping("/courses/{courseId}/tasks/{taskId}/mysubmission/file")
+  public ResponseEntity<Resource> ReplaceCourseTasksMySubmissionFile(@PathVariable int courseId,
       @PathVariable int taskId,
-      @RequestHeader Map<String, String> headers) throws IOException {
-   
-    return ResponseEntity.status(HttpStatus.CREATED).build();
+      @RequestParam("file") MultipartFile file,
+      @RequestHeader Map<String, String> headers) throws Exception {
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    assertCallerIsStudent(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
+    String studentId= loginInformation.username;
+    if (controllersService.getSubmission(courseId, taskId,studentId) == null){
+      throw  new SubmissionNotFoundExeption(courseId, taskId, studentId);
+    }
+    FileObject fileObject=fileToFileObject(file);
+    controllersService.replaceSubmissionFile(courseId, taskId, studentId,fileObject);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
-
 
   @GetMapping("/courses/{courseId}/tasks/{taskId}/mysubmission/feedbackFile")
   public ResponseEntity<Resource> GetCourseTasksMySubmissionFeedbackFile(@PathVariable int courseId,
       @PathVariable int taskId,
       @RequestHeader Map<String, String> headers) throws Exception {
-
-    LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
-    if (loginInformation.loginType==LoginType.PROFESSOR) {
-      //trhow
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    assertCallerIsStudent(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
+    String studentId= loginInformation.username;
+    Submission submission=controllersService.getSubmission(courseId, taskId,studentId);
+    if (submission == null){
+      throw  new SubmissionNotFoundExeption(courseId, taskId, studentId);
     }
-    Student student = controllersService.getStudent(loginInformation.username,
-        loginInformation.password);
-    if (student == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    if (submission.getFeedbackFile()==null){
+      throw new FileNotExistException();
     }
-    Course course = controllersService.getCourse(courseId);
-    if (!controllersService.isStudentRegisteredToCourse(student,course)) {
-      //todo: error
-      throw new Exception();
-    }
-    Task task = controllersService.getTask(courseId,taskId);
-    //handle not found task
-    Submission submission=controllersService.getSubmission(courseId,taskId,student.getId());
     return fileResponse(submission.getFeedbackFile());
   }
 
@@ -352,20 +336,17 @@ controllersService.addSubmission(id, task, student.getId(),fileObject);
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestHeader Map<String, String> headers) throws Exception {
-
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
-    //todo: if it is student
-    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
-    if (professor == null){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-    Course course = controllersService.getCourse(courseId);
-    if (!course.getProfessor().getId().equals(professor.getId())) {
-      //todo: 403
-      throw new Exception();
-    }
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
     Submission submission=controllersService.getSubmission(courseId, taskId,studentId);
-
+    if (submission == null){
+      throw  new SubmissionNotFoundExeption(courseId, taskId, studentId);
+    }
+    if (submission.getFeedbackFile()==null){
+      throw new FileNotExistException();
+    }
     return fileResponse(submission.getFeedbackFile());
   }
 
@@ -375,31 +356,43 @@ controllersService.addSubmission(id, task, student.getId(),fileObject);
       @PathVariable String studentId,
       @RequestParam("file") MultipartFile file,
       @RequestHeader Map<String, String> headers) throws Exception {
-
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
-    //todo: if it is student
-    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
-    if (professor == null){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
+    Submission submission=controllersService.getSubmission(courseId, taskId,studentId);
+    if (submission == null){
+      throw  new SubmissionNotFoundExeption(courseId, taskId, studentId);
     }
-    Course course = controllersService.getCourse(courseId);
-    if (!course.getProfessor().getId().equals(professor.getId())) {
-      //todo: 403
-      throw new Exception();
+    if (submission.getFeedbackFile()!=null){
+      throw new FileAlreadyExistsException();
     }
     FileObject  fileObject=fileToFileObject(file);
-    controllersService.addFeedBackFileToSubmission(courseId, taskId,studentId,fileObject);
+    controllersService.setSubmissionFeedBackFile(courseId, taskId,studentId,fileObject);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
 
-  @PutMapping("/courses/{id}/tasks/{taskId}/submissions/{studentId}/feedbackFile")
-  public ResponseEntity<Resource> ReplaceCourseTasksSubmissionFeedbackFile(@PathVariable int id,
+  @PutMapping("/courses/{courseId}/tasks/{taskId}/submissions/{studentId}/feedbackFile")
+  public ResponseEntity<Resource> ReplaceCourseTasksSubmissionFeedbackFile(@PathVariable int courseId,
       @PathVariable int taskId,
       @PathVariable String studentId,
-      @RequestHeader Map<String, String> headers) throws IOException {
-   
-    return ResponseEntity.status(HttpStatus.CREATED).build();
+      @RequestParam("file") MultipartFile file,
+      @RequestHeader Map<String, String> headers) throws Exception {
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
+    Submission submission=controllersService.getSubmission(courseId, taskId,studentId);
+    if (submission == null){
+      throw  new SubmissionNotFoundExeption(courseId, taskId, studentId);
+    }
+    if (submission.getFeedbackFile()!=null){
+      throw new FileNotExistException();
+    }
+    FileObject  fileObject=fileToFileObject(file);
+    controllersService.setSubmissionFeedBackFile(courseId, taskId,studentId,fileObject);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
 
@@ -410,35 +403,41 @@ controllersService.addSubmission(id, task, student.getId(),fileObject);
       @RequestBody int grade,
       @RequestHeader Map<String, String> headers) throws Exception {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
-    //todo: if it is student
-    Professor professor = controllersService.getProfessor(loginInformation.username, loginInformation.password);
-    if (professor == null){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
+    Submission submission=controllersService.getSubmission(courseId, taskId,studentId);
+    if (submission == null){
+      throw  new SubmissionNotFoundExeption(courseId, taskId, studentId);
     }
-    Course course = controllersService.getCourse(courseId);
-    if (!course.getProfessor().getId().equals(professor.getId())) {
-      //todo: 403
-      throw new Exception();
+    if (submission.getGrade()!=null){
+      throw new GradeAlreayExistsException();
     }
-    controllersService.addGradeToSubmission(courseId, taskId,studentId,grade);
+    controllersService.setSubmissionGrade(courseId, taskId,studentId,grade);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  @PutMapping("/courses/{id}/tasks/{taskId}/submissions/{studentId}/grade")
-  public ResponseEntity<Resource> UpdateGrade(@PathVariable int id,
+  @PutMapping("/courses/{courseId}/tasks/{taskId}/submissions/{studentId}/grade")
+  public ResponseEntity<Resource> UpdateGrade(@PathVariable int courseId,
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestBody int grade,
-      @RequestHeader Map<String, String> headers) throws IOException {
-   
-    return ResponseEntity.status(HttpStatus.CREATED).build();
+      @RequestHeader Map<String, String> headers) throws Exception {
+    LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
+    assertCallerIsProfessor(loginInformation);
+    verifyCourseExistAndMatchPerson(loginInformation,courseId);
+    assertTaskExists(courseId, taskId);
+    Submission submission=controllersService.getSubmission(courseId, taskId,studentId);
+    if (submission == null){
+      throw  new SubmissionNotFoundExeption(courseId, taskId, studentId);
+    }
+    if (submission.getGrade()==null){
+      throw new GradeNotExistException();
+    }
+    controllersService.setSubmissionGrade(courseId, taskId,studentId,grade);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
-  //todo: delete
-  @GetMapping("/apierr")
-  public SubmissionDTO getApiError( ) throws Exception {
-    throw new ApiError("ggg", HttpStatus.BAD_REQUEST);
-  }
   private ResponseEntity<Resource> fileResponse(FileObject fileObject){
     HttpHeaders responseHeaders = new HttpHeaders();
     responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+fileObject.Name);
@@ -490,6 +489,11 @@ controllersService.addSubmission(id, task, student.getId(),fileObject);
     if (task == null){
       throw new TaskNotFoundError(courseId, taskId);
     }
+  }
+
+  private FileObject fileToFileObject( MultipartFile file) throws IOException {
+    String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+    return new FileObject(fileName, file.getBytes());
   }
 
 }
