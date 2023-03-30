@@ -387,7 +387,7 @@ public class CourseController {
     if (submission == null){
       throw  new SubmissionNotFoundExeption(courseId, taskId, studentId);
     }
-    if (submission.getFeedbackFile()!=null){
+    if (submission.getFeedbackFile()==null){
       throw new FileNotExistException();
     }
     FileObject  fileObject=fileToFileObject(file);

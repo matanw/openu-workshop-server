@@ -5,19 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7ebd65e3-5d3e-4ba0-87da-360fd448fce5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/errors/FileAlreadyExistsException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/errors/FileNotExistException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/errors/GradeAlreayExistsException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/errors/GradeNotExistException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/errors/SubmissionAlreadyExistExeption.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/errors/SubmissionNotFoundExeption.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_file.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/call_example.sh" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/call_example2.sh" beforeDir="false" afterPath="$PROJECT_DIR$/call_example2.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/ControllersService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/ControllersService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/CourseController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/CourseController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/myDB.lobs" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.lobs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/myDB.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/myDB.script" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.script" afterDir="false" />
@@ -141,6 +131,7 @@
       <workItem from="1677520019564" duration="5375000" />
       <workItem from="1679917402610" duration="1306000" />
       <workItem from="1680163173832" duration="2538000" />
+      <workItem from="1680208726654" duration="2832000" />
     </task>
     <servers />
   </component>
