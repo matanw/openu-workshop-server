@@ -1,6 +1,8 @@
 package openu.workshop.webservice;
 
 
+import java.util.HashMap;
+import java.util.Map;
 import openu.workshop.webservice.errors.ApiError;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,10 +18,13 @@ public class RestResponseEntityExceptionHandler
 
   @ExceptionHandler(value
       = { ApiError.class })
-  protected ResponseEntity<Object> handleConflict(
+  protected ResponseEntity<Object> handleApiError(
       ApiError ex, WebRequest request) {
-    String bodyOfResponse = "This should be application specific";
-    return handleExceptionInternal(ex, ex.getMessage(),
+    Map<String, String> response= Map.ofEntries(
+        Map.entry("message", ex.getMessage()),
+        Map.entry("type", "server-thrown-error")
+    );
+    return handleExceptionInternal(ex, response,
         new HttpHeaders(), ex.getHttpStatus(), request);
   }
 }
