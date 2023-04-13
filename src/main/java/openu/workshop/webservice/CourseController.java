@@ -2,14 +2,9 @@ package openu.workshop.webservice;
 
 import openu.workshop.webservice.auth.AuthManager;
 import openu.workshop.webservice.auth.LoginInformation;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import openu.workshop.webservice.auth.LoginType;
 import openu.workshop.webservice.datatransferobjects.CourseDTO;
 import openu.workshop.webservice.datatransferobjects.SubmissionDTO;
@@ -41,7 +36,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,7 +47,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class CourseController {
@@ -62,7 +55,7 @@ public class CourseController {
   private AuthManager authManager;
 
   @Autowired
-  private ControllersService controllersService;
+  private DataLayerService controllersService;
 
 
   @GetMapping("/courses")

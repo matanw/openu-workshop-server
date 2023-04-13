@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7ebd65e3-5d3e-4ba0-87da-360fd448fce5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/RestResponseEntityExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/RestResponseEntityExceptionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/RestResponseEntityExceptionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/RestResponseEntityExceptionHandler.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/myDB.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/myDB.script" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.script" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/ControllersService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/DataLayerService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,6 +129,7 @@
       <workItem from="1680163173832" duration="2538000" />
       <workItem from="1680208726654" duration="2832000" />
       <workItem from="1680468484702" duration="691000" />
+      <workItem from="1681362424468" duration="1079000" />
     </task>
     <servers />
   </component>
@@ -147,7 +145,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java</url>
-          <line>118</line>
+          <line>111</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>

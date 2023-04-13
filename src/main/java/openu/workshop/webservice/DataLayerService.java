@@ -19,7 +19,7 @@ import openu.workshop.webservice.model.Task;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ControllersService {
+public class DataLayerService {
 
   public Professor getProfessor(String id, String password){
     return executeInDB(em->{
