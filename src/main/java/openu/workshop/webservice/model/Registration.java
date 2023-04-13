@@ -21,8 +21,6 @@ public class Registration {
   @ManyToOne
   private Course course;
 
-  //todo: final grade
-
   public Registration(){}
 
 

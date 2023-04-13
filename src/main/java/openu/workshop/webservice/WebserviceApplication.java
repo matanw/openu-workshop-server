@@ -40,9 +40,9 @@ public class WebserviceApplication {
 		entityManagerFactory.close();
 		System.out.println("updated ok!");
 	}
-	//todo: fix "throw Exception" All over code
+
 	public static void main(String[] args) throws Exception {
-		initDB();//todo:delete
+		initDB();
 		SpringApplication.run(WebserviceApplication.class, args);
 	}
 }

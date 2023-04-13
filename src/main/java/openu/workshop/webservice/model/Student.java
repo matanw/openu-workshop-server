@@ -12,7 +12,7 @@ public class Student {
 
   @Id
   private String id;
-  private String password; // todo: salt
+  private String password;
 
   @OneToMany(mappedBy = "student")
   private Collection<Registration> registrations;

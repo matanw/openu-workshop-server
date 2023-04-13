@@ -10,7 +10,7 @@ public class Professor {
 
   @Id
   private String id;
-  private String password; // todo: salt
+  private String password;
 
   @OneToMany(mappedBy = "professor")
   private Set<Course> courses;
