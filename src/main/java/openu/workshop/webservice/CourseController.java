@@ -59,7 +59,7 @@ public class CourseController {
 
 
   @GetMapping("/courses")
-  public List<CourseDTO> GetCourses(@RequestHeader Map<String, String> headers) throws Exception {
+  public List<CourseDTO> GetCourses(@RequestHeader Map<String, String> headers) throws ApiError {
    LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
    if (loginInformation.loginType== LoginType.PROFESSOR) {
       Professor professor = controllersService.getProfessor(loginInformation.username,
@@ -80,7 +80,7 @@ public class CourseController {
   }
 
   @GetMapping("/courses/{courseId}")
-  public CourseDTO GetCourse(@PathVariable int courseId, @RequestHeader Map<String, String> headers) throws Exception{
+  public CourseDTO GetCourse(@PathVariable int courseId, @RequestHeader Map<String, String> headers) throws ApiError{
     LoginInformation loginInformation=authManager.GetLoginInformationOrThrows401(headers);
     verifyCourseExistAndMatchPerson(loginInformation, courseId);
     Course course = controllersService.getCourse(courseId);
@@ -89,7 +89,7 @@ public class CourseController {
 
   @GetMapping("/courses/{courseId}/tasks")
   public List<TaskDTO> GetCourseTasks(@PathVariable int courseId,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     verifyCourseExistAndMatchPerson(loginInformation, courseId);
     List<Task> tasks = controllersService.getTasksByCourse(courseId);
@@ -99,7 +99,7 @@ public class CourseController {
   @PostMapping("/courses/{courseId}/tasks")
   public ResponseEntity<Resource> CreateCourseTask(@PathVariable int courseId,
       @RequestBody TaskDTO taskDTO,
-      @RequestHeader Map<String, String> headers) throws Exception{
+      @RequestHeader Map<String, String> headers) throws ApiError{
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -115,7 +115,7 @@ public class CourseController {
   public ResponseEntity<Resource> ReplaceCourseTask(@PathVariable int courseId,
       @PathVariable int taskId,
       @RequestBody TaskDTO taskDTO,
-      @RequestHeader Map<String, String> headers) throws Exception{
+      @RequestHeader Map<String, String> headers) throws ApiError{
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -133,7 +133,7 @@ public class CourseController {
   @DeleteMapping("/courses/{courseId}/tasks/{taskId}")
   public ResponseEntity<Resource> DeleteCourseTask(@PathVariable int courseId,
       @PathVariable  int taskId,
-      @RequestHeader Map<String, String> headers) throws Exception{
+      @RequestHeader Map<String, String> headers) throws ApiError{
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -146,7 +146,7 @@ public class CourseController {
 
   @GetMapping("/courses/{courseId}/tasks/{taskId}/file")
   public ResponseEntity<Resource> GetCourseTaskFile(@PathVariable int courseId, @PathVariable int taskId,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     verifyCourseExistAndMatchPerson(loginInformation, courseId);
     assertTaskExists(courseId, taskId);
@@ -160,7 +160,7 @@ public class CourseController {
   @PostMapping("/courses/{courseId}/tasks/{taskId}/file")
   public ResponseEntity<Resource> CreateCourseTaskFile(@PathVariable int courseId, @PathVariable int taskId,
       @RequestParam("file") MultipartFile file,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError ,IOException{
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation, courseId);
@@ -176,7 +176,7 @@ public class CourseController {
   @PutMapping("/courses/{courseId}/tasks/{taskId}/file")
   public ResponseEntity<Resource> ReplaceCourseTaskFile(@PathVariable int courseId, @PathVariable int taskId,
       @RequestParam("file") MultipartFile file,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError, IOException {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation, courseId);
@@ -192,7 +192,7 @@ public class CourseController {
   @GetMapping("/courses/{courseId}/tasks/{taskId}/submissions")
   public List<SubmissionDTO> GetCourseTasksSubmissions(@PathVariable int courseId,
       @PathVariable int taskId,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -206,7 +206,7 @@ public class CourseController {
   public SubmissionDTO GetCourseTasksSubmission(@PathVariable int courseId,
       @PathVariable int taskId,
       @PathVariable String studentId,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -222,7 +222,7 @@ public class CourseController {
   public ResponseEntity<Resource> GetCourseTasksSubmissionFile(@PathVariable int courseId,
       @PathVariable int taskId,
       @PathVariable String studentId,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -238,7 +238,7 @@ public class CourseController {
   @GetMapping("/courses/{courseId}/tasks/{taskId}/mysubmission")
   public SubmissionDTO GetCourseTasksMySubmission(@PathVariable int courseId,
       @PathVariable int taskId,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsStudent(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -254,7 +254,7 @@ public class CourseController {
   @GetMapping("/courses/{courseId}/tasks/{taskId}/mysubmission/file")
   public ResponseEntity<Resource> GetCourseTasksMySubmissionFile(@PathVariable int courseId,
       @PathVariable int taskId,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsStudent(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -272,7 +272,7 @@ public class CourseController {
   public ResponseEntity<Resource> CreateCourseTasksMySubmissionFile(@PathVariable int courseId,
       @PathVariable int taskId,
       @RequestParam("file") MultipartFile file,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError, IOException {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsStudent(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -291,7 +291,7 @@ public class CourseController {
   public ResponseEntity<Resource> ReplaceCourseTasksMySubmissionFile(@PathVariable int courseId,
       @PathVariable int taskId,
       @RequestParam("file") MultipartFile file,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError, IOException {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsStudent(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -308,7 +308,7 @@ public class CourseController {
   @GetMapping("/courses/{courseId}/tasks/{taskId}/mysubmission/feedbackFile")
   public ResponseEntity<Resource> GetCourseTasksMySubmissionFeedbackFile(@PathVariable int courseId,
       @PathVariable int taskId,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsStudent(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -328,7 +328,7 @@ public class CourseController {
   public ResponseEntity<Resource> GetCourseTasksSubmissionFeedbackFile(@PathVariable int courseId,
       @PathVariable int taskId,
       @PathVariable String studentId,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -348,7 +348,7 @@ public class CourseController {
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestParam("file") MultipartFile file,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError, IOException {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -371,7 +371,7 @@ public class CourseController {
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestParam("file") MultipartFile file,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError, IOException {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -394,7 +394,7 @@ public class CourseController {
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestBody int grade,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -415,7 +415,7 @@ public class CourseController {
       @PathVariable int taskId,
       @PathVariable String studentId,
       @RequestBody int grade,
-      @RequestHeader Map<String, String> headers) throws Exception {
+      @RequestHeader Map<String, String> headers) throws ApiError {
     LoginInformation loginInformation = authManager.GetLoginInformationOrThrows401(headers);
     assertCallerIsProfessor(loginInformation);
     verifyCourseExistAndMatchPerson(loginInformation,courseId);
@@ -442,7 +442,7 @@ public class CourseController {
   }
 
 
-  private void verifyCourseExistAndMatchPerson(LoginInformation loginInformation, int courseId) throws Exception{
+  private void verifyCourseExistAndMatchPerson(LoginInformation loginInformation, int courseId) throws ApiError{
     if (loginInformation.loginType==LoginType.PROFESSOR) {
       Professor professor = controllersService.getProfessor(loginInformation.username,
           loginInformation.password);

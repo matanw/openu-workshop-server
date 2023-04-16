@@ -14,7 +14,7 @@ public class AuthManager {
   final String AUTHORIZATION_HEADER ="authorization";
 
 
-  public LoginInformation GetLoginInformationOrThrows401(Map<String, String> headers) throws Exception{
+  public LoginInformation GetLoginInformationOrThrows401(Map<String, String> headers) throws UnauthorizedException{
     if (!headers.containsKey(AUTHORIZATION_HEADER)){
       throw new UnauthorizedException();
     }
