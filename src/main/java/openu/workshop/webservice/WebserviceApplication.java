@@ -11,8 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class WebserviceApplication {
-	private static void initDB() throws Exception {
-
+	private static void initDB()  {
 		var entityManagerFactory = Persistence.
 				createEntityManagerFactory("default");
 		var entityManager = entityManagerFactory.createEntityManager();
@@ -41,8 +40,15 @@ public class WebserviceApplication {
 		System.out.println("updated ok!");
 	}
 
-	public static void main(String[] args) throws Exception {
-		initDB();
-		SpringApplication.run(WebserviceApplication.class, args);
+	public static void main(String[] args)  {
+
+		if (System.getenv("OPENU_SERVER_SKIP_INIT_DB") == null){
+			System.out.println("init db...");
+			initDB();
+		}
+		if (System.getenv("OPENU_SERVER_SKIP_RUN_APP") ==null){
+			System.out.println("Running app...");
+			SpringApplication.run(WebserviceApplication.class, args);
+		}
 	}
 }

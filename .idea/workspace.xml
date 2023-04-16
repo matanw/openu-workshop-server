@@ -5,8 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7ebd65e3-5d3e-4ba0-87da-360fd448fce5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/CourseController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/auth/AuthManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/auth/AuthManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/build_image.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/prepare_db.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/run_app.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbhacks/createdbusejava.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbhacks/myDB.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbhacks/myDB.script" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dbhacks/reset_db.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/WebserviceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/WebserviceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/WebserviceApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/openu/workshop/webservice/WebserviceApplication.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/myDB.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/myDB.script" beforeDir="false" afterPath="$PROJECT_DIR$/target/myDB.script" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,29 +62,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.go.format.on.save.advertiser.fired&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/usr/local/google/home/matanwiesner/personal/webservice/src/main/java/openu/workshop/webservice/db&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;spring.configuration.checksum&quot;: &quot;cca5d72b2013a1b8737449a4dd328903&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.go.format.on.save.advertiser.fired": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/usr/local/google/home/matanwiesner/personal/webservice/scripts",
+    "nodejs_package_manager_path": "npm",
+    "spring.configuration.checksum": "cca5d72b2013a1b8737449a4dd328903"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="openu.workshop.webservice.errors" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/scripts" />
       <recent name="$PROJECT_DIR$/src/main/java/openu/workshop/webservice/db" />
       <recent name="$PROJECT_DIR$" />
     </key>
@@ -130,6 +141,7 @@
       <workItem from="1680208726654" duration="2832000" />
       <workItem from="1680468484702" duration="691000" />
       <workItem from="1681362424468" duration="1679000" />
+      <workItem from="1681624492734" duration="3725000" />
     </task>
     <servers />
   </component>
