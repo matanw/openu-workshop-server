@@ -1,5 +1,6 @@
 package openu.workshop.webservice.model;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
 
@@ -8,6 +9,7 @@ public class FileObject {
   public String Name;
 
   @Lob
+  @Column(length = 100000)
   public byte[] Data;
 
   public FileObject(){}

@@ -18,15 +18,15 @@ public class Submission {
   private Integer grade;
   @Embedded
   @AttributeOverrides({
-      @AttributeOverride(name="Name",column=@Column(name="file_name")),
-      @AttributeOverride(name="Data",column=@Column(name="file_data"))
+      @AttributeOverride(name="Name",column=@Column(name="file_name",length = 100000)),
+      @AttributeOverride(name="Data",column=@Column(name="file_data", length = 100000))
   })
   private FileObject file;
 
   @Embedded
   @AttributeOverrides({
-      @AttributeOverride(name="Name",column=@Column(name="feedbackFile_name")),
-      @AttributeOverride(name="Data",column=@Column(name="feedbackFile_data"))
+      @AttributeOverride(name="Name",column=@Column(name="feedbackFile_name",length = 100000)),
+      @AttributeOverride(name="Data",column=@Column(name="feedbackFile_data",length = 100000))
   })
   private FileObject feedbackFile;
 
